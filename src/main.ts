@@ -204,11 +204,10 @@ export default class MeridianPlugin extends Plugin {
       this.app.workspace.revealLeaf(existing[0]);
       return;
     }
-    const leaf = this.app.workspace.getRightLeaf(false);
-    if (leaf) {
-      leaf.setViewState({ type: BRIEF_VIEW_TYPE, active: true });
-      this.app.workspace.revealLeaf(leaf);
-    }
+    this.app.workspace.getLeaf("split").setViewState({
+      type: BRIEF_VIEW_TYPE,
+      active: true,
+    });
   }
 
   openReviewSidebar(): void {
@@ -217,11 +216,10 @@ export default class MeridianPlugin extends Plugin {
       this.app.workspace.revealLeaf(existing[0]);
       return;
     }
-    const leaf = this.app.workspace.getRightLeaf(false);
-    if (leaf) {
-      leaf.setViewState({ type: REVIEW_VIEW_TYPE, active: true });
-      this.app.workspace.revealLeaf(leaf);
-    }
+    this.app.workspace.getLeaf("split").setViewState({
+      type: REVIEW_VIEW_TYPE,
+      active: true,
+    });
   }
 
   // Read memory.json from vault
