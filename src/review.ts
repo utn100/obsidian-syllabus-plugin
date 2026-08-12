@@ -5,7 +5,7 @@ import type MeridianPlugin from "./main";
 import { calcCapacity } from "./memory";
 import { SYSTEM_PROMPT } from "./prompts";
 
-export const REVIEW_VIEW_TYPE = "meridian-review";
+export const REVIEW_VIEW_TYPE = "syllabus-review";
 
 // ── Weekly review view ─────────────────────────────────────────────────────
 

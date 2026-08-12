@@ -6,7 +6,7 @@ import { computeBriefContext, type BriefContext } from "./brief-context";
 import { SYSTEM_PROMPT } from "./prompts";
 import type { Memory } from "./memory";
 
-export const BRIEF_VIEW_TYPE = "meridian-brief";
+export const BRIEF_VIEW_TYPE = "syllabus-brief";
 
 export class BriefView extends ItemView {
   private context: BriefContext | null = null;
@@ -16,8 +16,8 @@ export class BriefView extends ItemView {
   }
 
   getViewType(): string { return BRIEF_VIEW_TYPE; }
-  getDisplayText(): string { return "Meridian Brief"; }
-  getIcon(): string { return "zap"; }
+  getDisplayText(): string { return "Syllabus Brief"; }
+  getIcon(): string { return "book-open"; }
 
   async onOpen(): Promise<void> {
     await this.refresh();
