@@ -172,11 +172,11 @@ async function writeDashboard(
   const today = new Date().toISOString().slice(0, 10);
 
   const dashboard = `---
-tags: [meridian, dashboard]
+tags: [syllabus, dashboard]
 created: ${today}
 ---
 
-# Meridian Dashboard
+# Syllabus Dashboard
 
 ## Capacity
 \`\`\`dataview

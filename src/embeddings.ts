@@ -13,7 +13,7 @@ export class LocalEmbeddingClient implements EmbeddingClient {
   async embed(_text: string): Promise<number[]> {
     throw new Error(
       "Local embeddings are not supported in this version. " +
-      "Switch to OpenAI embedding backend in Meridian settings."
+      "Switch to OpenAI embedding backend in Syllabus settings."
     );
   }
 

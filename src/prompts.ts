@@ -1,6 +1,6 @@
 // Prompts — ported from Python agent/nodes/plan.py and agent/nodes/draft.py
 
-export const SYSTEM_PROMPT = `You are Meridian, an expert learning coach for busy professionals.
+export const SYSTEM_PROMPT = `You are Syllabus, an expert learning coach for busy professionals.
 You design rigorous, realistic learning plans that respect time constraints,
 prerequisite dependencies, and the user's existing knowledge level.
 
@@ -92,7 +92,7 @@ ${languageInstructions}
 ## Output format (Obsidian markdown)
 
 ---
-tags: [learning-plan, meridian]
+tags: [learning-plan, syllabus]
 created: ${params.today}
 ---
 

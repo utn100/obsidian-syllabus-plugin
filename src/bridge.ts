@@ -148,7 +148,7 @@ async function generateConnection(
                         extractSection(conceptContent, "So what");
 
   const prompt = soWhatFilled
-    ? `You are Meridian, a learning agent connecting study material to work.
+    ? `You are Syllabus, a learning agent connecting study material to work.
 
 The user is a ${userRole} working on: "${workNoteTitle}"
 
@@ -162,7 +162,7 @@ Related context: ${neighborContext || "none"}
 Write a SPECIFIC 2-sentence connection explaining exactly how ${conceptReadable} applies to what they are writing right now. Reference the actual content of their work note. Be concrete and actionable.
 
 Output only the 2 sentences, nothing else.`
-    : `You are Meridian, a learning agent connecting study material to work.
+    : `You are Syllabus, a learning agent connecting study material to work.
 
 The user is a ${userRole} working on: "${workNoteTitle}"
 
@@ -196,7 +196,7 @@ function buildConnectionBlock(
 ): string {
   const today = new Date().toISOString().slice(0, 10);
   const quality = soWhatFilled ? "" : "\n> *Fill [[" + conceptStem + "]] → \"So what for [role]\" for a specific connection next time.*";
-  return `---\n*Meridian (${today})*: You studied [[${conceptStem}]].\n${connection}${quality}`;
+  return `---\n*Syllabus (${today})*: You studied [[${conceptStem}]].\n${connection}${quality}`;
 }
 
 // ── Toast ──────────────────────────────────────────────────────────────────

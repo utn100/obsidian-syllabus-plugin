@@ -239,7 +239,7 @@ export class OnboardingModal extends Modal {
         new Notice(
           `✓ Setup complete! ${result.topicsCount} topics planned, ` +
           `${result.draftedCount} notes drafted. ` +
-          `Open the Meridian sidebar to see your first focus task.`
+          `Open the Syllabus sidebar to see your first focus task.`
         );
 
         // Open daily brief sidebar after setup

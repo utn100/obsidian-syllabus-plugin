@@ -1,4 +1,4 @@
-// Vault folder initialisation — creates the Meridian directory tree on first enable
+// Vault folder initialisation — creates the Syllabus directory tree on first enable
 
 import { App } from "obsidian";
 import type { MeridianSettings } from "./settings";

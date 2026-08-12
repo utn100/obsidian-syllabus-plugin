@@ -102,7 +102,7 @@ export class ReviewView extends ItemView {
       const file = this.app.vault.getAbstractFileByPath(path);
       if (file instanceof TFile) {
         await this.app.workspace.getLeaf(false).openFile(file);
-        new Notice("Add your feedback, then run Cmd+P → Meridian: Refine plan");
+        new Notice("Add your feedback, then run Cmd+P → Syllabus: Refine plan");
       }
     });
 
@@ -276,7 +276,7 @@ async function writeReviewFile(app: App, plugin: MeridianPlugin, reviewText: str
   const path = `${plugin.settings.meridianFolder}/weekly-reviews/${weekLabel}.md`;
 
   const content = `---
-tags: [meridian, weekly-review]
+tags: [syllabus, weekly-review]
 week: ${weekLabel}
 created: ${today}
 ---

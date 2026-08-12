@@ -180,8 +180,8 @@ export class BriefView extends ItemView {
     const checkbox = row.createEl("input");
     checkbox.type = "checkbox";
     checkbox.checked = isChecked;
-    checkbox.id = `meridian-check-${key}`;
-    row.createEl("label", { text: label, attr: { for: `meridian-check-${key}` } });
+    checkbox.id = `syllabus-check-${key}`;
+    row.createEl("label", { text: label, attr: { for: `syllabus-check-${key}` } });
 
     checkbox.addEventListener("change", async () => {
       await this.plugin.markSessionComplete(key, checkbox.checked);

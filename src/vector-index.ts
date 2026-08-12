@@ -1,11 +1,11 @@
 // Vector index — stores embeddings as JSON in the vault
-// Path: meridian/.meridian/embeddings.json
+// Path: syllabus/.meridian/embeddings.json
 
 import { App, TFile } from "obsidian";
 import { cosineSimilarity } from "./embeddings";
 
 export interface IndexEntry {
-  path: string;       // vault-relative path, e.g. "meridian/concepts/rlhf.md"
+  path: string;       // vault-relative path, e.g. "syllabus/concepts/rlhf.md"
   stem: string;       // filename without extension, e.g. "rlhf"
   vector: number[];   // embedding vector
   updatedAt: string;  // ISO timestamp of last index
