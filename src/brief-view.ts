@@ -138,11 +138,14 @@ export class BriefView extends ItemView {
       });
     }
 
-    // Session checkboxes
+    // Session checkboxes — derive label from focus task topic or use generic
     const checkEl = container.createDiv("syllabus-checks-section");
     checkEl.createEl("hr");
     checkEl.createEl("p", { text: "Mark yesterday complete:", cls: "syllabus-section-label" });
-    this.addSessionCheckbox(checkEl, "ds-ml", "DS/ML session done", memory);
+    const studyLabel = ctx.focusReason
+      ? `Study session done (${ctx.focusReason.split(":")[0].trim()})`
+      : "Study session done";
+    this.addSessionCheckbox(checkEl, "study", studyLabel, memory);
     for (const lp of ctx.languageProgress) {
       const key = lp.name.toLowerCase().replace(/\s+/g, "-");
       this.addSessionCheckbox(checkEl, key, `${lp.name} done`, memory);

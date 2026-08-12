@@ -78,17 +78,22 @@ export class OnboardingModal extends Modal {
       { id: "custom", label: "Custom — I'll describe it", emoji: "✏️" },
     ];
 
-    let selectedTemplate = "pm-ml";
-    this.applyTemplate("pm-ml");
+    let selectedTemplate = "custom";
+    // Only pre-fill from template if user has no saved goals
+    const hasSavedGoals = !!this.plugin.settings.savedGoals;
+    if (!hasSavedGoals) {
+      selectedTemplate = "pm-ml";
+      this.applyTemplate("pm-ml");
+    }
 
     const templateButtons: HTMLElement[] = [];
     for (const t of templates) {
-      const btn = templateGrid.createDiv("syllabus-template-btn syllabus-template-selected");
+      const isSelected = t.id === selectedTemplate;
+      const btn = templateGrid.createDiv("syllabus-template-btn");
+      if (isSelected) btn.addClass("syllabus-template-selected");
       btn.createEl("div", { text: t.emoji, cls: "syllabus-template-emoji" });
       btn.createEl("div", { text: t.label, cls: "syllabus-template-label" });
       btn.dataset.id = t.id;
-
-      if (t.id !== "pm-ml") btn.removeClass("syllabus-template-selected");
 
       btn.addEventListener("click", () => {
         templateButtons.forEach((b) => b.removeClass("syllabus-template-selected"));
