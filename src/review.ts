@@ -34,7 +34,8 @@ export class ReviewView extends ItemView {
     const loading = container.createEl("p", { text: "⏳ Generating weekly review...", cls: "syllabus-loading" });
 
     try {
-      const ctx = computeReviewContext(memory);
+      const planText = await readPlanText(this.app, this.plugin);
+      const ctx = computeReviewContext(memory, planText);
       const reviewText = await generateReviewText(this.plugin, ctx);
       loading.remove();
       this.renderReview(container, ctx, reviewText);
@@ -128,15 +129,26 @@ interface ReviewContext {
   topNotesToFill: Array<{ stem: string; connections: number }>;
 }
 
-function computeReviewContext(memory: import("./memory").Memory): ReviewContext {
+function computeReviewContext(
+  memory: import("./memory").Memory,
+  planText: string
+): ReviewContext {
   const today = new Date();
   const weekStart = new Date(today);
   weekStart.setDate(today.getDate() - today.getDay()); // Sunday
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
-  // Sessions this week
+  // Count completed tasks in the current week block of the plan
+  const { completed: planTasksDone, total: planTasksTotal } =
+    countWeeklyPlanTasks(planText, today);
+
+  // Also count plugin session checkboxes as a fallback
   const weekSessions = memory.sessions.filter(s => s.date >= weekStartStr);
-  const sessionsCompleted = weekSessions.reduce((n, s) => n + s.completed.length, 0);
+  const sessionsDone = weekSessions.reduce((n, s) => n + s.completed.length, 0);
+
+  // Use plan tasks if available, fall back to session checkboxes
+  const sessionsCompleted = planTasksDone > 0 ? planTasksDone : sessionsDone;
+  const sessionsPlanned = planTasksTotal > 0 ? planTasksTotal : 5;
 
   // Applied this week — topics with last_applied in current week
   const appliedThisWeek = Object.entries(memory.topics)
@@ -165,7 +177,7 @@ function computeReviewContext(memory: import("./memory").Memory): ReviewContext 
   return {
     weekLabel: getWeekLabel(),
     sessionsCompleted,
-    sessionsPlanned: 5,
+    sessionsPlanned,
     capacityPct: calcCapacity(memory),
     bridgeHigh: memory.bridge_stats.high_quality,
     bridgeGeneric: memory.bridge_stats.generic,
@@ -173,6 +185,56 @@ function computeReviewContext(memory: import("./memory").Memory): ReviewContext 
     neverApplied,
     topNotesToFill,
   };
+}
+
+// ── Plan task counting ─────────────────────────────────────────────────────
+
+async function readPlanText(app: App, plugin: MeridianPlugin): Promise<string> {
+  const path = `${plugin.settings.meridianFolder}/plans/learning-plan.md`;
+  const file = app.vault.getAbstractFileByPath(path);
+  if (!(file instanceof TFile)) return "";
+  return app.vault.read(file);
+}
+
+function countWeeklyPlanTasks(
+  planText: string,
+  today: Date
+): { completed: number; total: number } {
+  if (!planText) return { completed: 0, total: 0 };
+
+  const weekRe = /^### Week \d+ \((\d{4}-\d{2}-\d{2})[^)]*\) [—–\-] (.+)$/;
+  const lines = planText.split("\n");
+
+  // Find current week block
+  let currentWeekStart = -1;
+  let nextWeekStart = lines.length;
+
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(weekRe);
+    if (!m) continue;
+    const weekDate = new Date(m[1]);
+    const weekEnd = new Date(weekDate);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    if (today >= weekDate && today <= weekEnd) {
+      currentWeekStart = i;
+    } else if (currentWeekStart >= 0 && i > currentWeekStart) {
+      nextWeekStart = i;
+      break;
+    }
+  }
+
+  if (currentWeekStart === -1) return { completed: 0, total: 0 };
+
+  let completed = 0;
+  let total = 0;
+  for (let i = currentWeekStart; i < nextWeekStart; i++) {
+    const line = lines[i];
+    if (/^- \[x\]/i.test(line)) { completed++; total++; }
+    else if (/^- \[ \]/.test(line)) { total++; }
+  }
+
+  return { completed, total };
 }
 
 // ── LLM review text ────────────────────────────────────────────────────────
