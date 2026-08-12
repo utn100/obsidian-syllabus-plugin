@@ -116,7 +116,7 @@ class ChangeSummaryModal extends Modal {
     contentEl.createEl("h3", { text: "Plan updated" });
 
     if (this.changes.length > 0) {
-      contentEl.createEl("p", { text: "Changes applied:", cls: "meridian-section-label" });
+      contentEl.createEl("p", { text: "Changes applied:", cls: "syllabus-section-label" });
       const list = contentEl.createEl("ul");
       for (const c of this.changes) {
         list.createEl("li", { text: c });
@@ -125,7 +125,7 @@ class ChangeSummaryModal extends Modal {
       contentEl.createEl("p", { text: "Plan updated (no change summary available)" });
     }
 
-    const footer = contentEl.createDiv("meridian-footer");
+    const footer = contentEl.createDiv("syllabus-footer");
     footer.createEl("button", { text: "OK", cls: "mod-cta" })
       .addEventListener("click", () => this.close());
   }

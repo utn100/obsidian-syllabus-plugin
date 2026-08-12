@@ -22,7 +22,7 @@ export class ConfirmModal extends Modal {
     contentEl.createEl("h3", { text: this.title });
     contentEl.createEl("p", { text: this.message });
 
-    const footer = contentEl.createDiv("meridian-footer");
+    const footer = contentEl.createDiv("syllabus-footer");
 
     const cancelBtn = footer.createEl("button", { text: this.cancelLabel });
     cancelBtn.addEventListener("click", () => {

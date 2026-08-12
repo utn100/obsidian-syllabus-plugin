@@ -121,7 +121,7 @@ export async function runSetup(
         onProgress(`Drafted ${draftedCount}/${missing.length} notes...`);
       } else {
         failedCount++;
-        console.error("[Meridian] draft failed:", result.reason);
+        console.error("[Syllabus] draft failed:", result.reason);
       }
     }
   }

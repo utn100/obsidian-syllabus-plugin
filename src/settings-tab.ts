@@ -104,11 +104,11 @@ export class MeridianSettingTab extends PluginSettingTab {
     containerEl.createEl("h2", { text: "Vault" });
 
     new Setting(containerEl)
-      .setName("Meridian folder")
-      .setDesc("Folder inside your vault where Meridian stores all files")
+      .setName("Syllabus folder")
+      .setDesc("Folder inside your vault where Syllabus stores all files")
       .addText((t) =>
         t
-          .setPlaceholder("meridian")
+          .setPlaceholder("syllabus")
           .setValue(this.plugin.settings.meridianFolder)
           .onChange(async (v) => {
             this.plugin.settings.meridianFolder = v.trim() || "meridian";
@@ -118,10 +118,10 @@ export class MeridianSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Work notes folder")
-      .setDesc("Folder Meridian watches for work-learning bridge connections")
+      .setDesc("Folder Syllabus watches for work-learning bridge connections")
       .addText((t) =>
         t
-          .setPlaceholder("meridian/work-notes")
+          .setPlaceholder("syllabus/work-notes")
           .setValue(this.plugin.settings.workNotesFolder)
           .onChange(async (v) => {
             this.plugin.settings.workNotesFolder = v.trim();

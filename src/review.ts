@@ -15,7 +15,7 @@ export class ReviewView extends ItemView {
   }
 
   getViewType() { return REVIEW_VIEW_TYPE; }
-  getDisplayText() { return "Meridian Review"; }
+  getDisplayText() { return "Syllabus Review"; }
   getIcon() { return "calendar-check"; }
 
   async onOpen() { await this.refresh(); }
@@ -23,7 +23,7 @@ export class ReviewView extends ItemView {
   async refresh() {
     const container = this.contentEl;
     container.empty();
-    container.addClass("meridian-brief-container");
+    container.addClass("syllabus-brief-container");
 
     const memory = await this.plugin.loadMemory();
     if (!memory) {
@@ -31,7 +31,7 @@ export class ReviewView extends ItemView {
       return;
     }
 
-    const loading = container.createEl("p", { text: "⏳ Generating weekly review...", cls: "meridian-loading" });
+    const loading = container.createEl("p", { text: "⏳ Generating weekly review...", cls: "syllabus-loading" });
 
     try {
       const ctx = computeReviewContext(memory);
@@ -50,7 +50,7 @@ export class ReviewView extends ItemView {
     container.createEl("h2", { text: `⚡ Week ${weekLabel} Review` });
 
     // Stats row
-    const statsEl = container.createDiv("meridian-review-stats");
+    const statsEl = container.createDiv("syllabus-review-stats");
     statsEl.createEl("span", { text: `Sessions: ${ctx.sessionsCompleted}/${ctx.sessionsPlanned}` });
     statsEl.appendText(" · ");
     statsEl.createEl("span", { text: `Capacity: ${ctx.capacityPct}%` });
@@ -59,31 +59,31 @@ export class ReviewView extends ItemView {
 
     // LLM review text
     if (reviewText) {
-      const reviewEl = container.createDiv("meridian-review-text");
+      const reviewEl = container.createDiv("syllabus-review-text");
       reviewEl.setText(reviewText);
     }
 
     // Applied this week
     if (ctx.appliedThisWeek.length > 0) {
-      const el = container.createDiv("meridian-review-section");
-      el.createEl("p", { text: "Applied this week:", cls: "meridian-section-label" });
+      const el = container.createDiv("syllabus-review-section");
+      el.createEl("p", { text: "Applied this week:", cls: "syllabus-section-label" });
       el.createEl("p", { text: ctx.appliedThisWeek.join(", ") });
     }
 
     // Never applied
     if (ctx.neverApplied.length > 0) {
-      const el = container.createDiv("meridian-review-section");
-      el.createEl("p", { text: "Studied but never applied:", cls: "meridian-section-label" });
-      el.createEl("p", { text: ctx.neverApplied.join(", "), cls: "meridian-hint" });
+      const el = container.createDiv("syllabus-review-section");
+      el.createEl("p", { text: "Studied but never applied:", cls: "syllabus-section-label" });
+      el.createEl("p", { text: ctx.neverApplied.join(", "), cls: "syllabus-hint" });
     }
 
     // Top notes to fill
     if (ctx.topNotesToFill.length > 0) {
-      const el = container.createDiv("meridian-review-section");
-      el.createEl("p", { text: "Fill these first:", cls: "meridian-section-label" });
+      const el = container.createDiv("syllabus-review-section");
+      el.createEl("p", { text: "Fill these first:", cls: "syllabus-section-label" });
       for (const note of ctx.topNotesToFill.slice(0, 3)) {
         const row = el.createEl("p");
-        const link = row.createEl("a", { text: `[[${note.stem}]]`, cls: "meridian-note-link" });
+        const link = row.createEl("a", { text: `[[${note.stem}]]`, cls: "syllabus-note-link" });
         link.addEventListener("click", () => {
           const path = `${this.plugin.settings.meridianFolder}/concepts/${note.stem}.md`;
           const file = this.app.vault.getAbstractFileByPath(path);

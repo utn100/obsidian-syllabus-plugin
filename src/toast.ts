@@ -19,7 +19,7 @@ export class Toast {
     private durationMs = 8000
   ) {
     this.el = document.createElement("div");
-    this.el.addClass("meridian-toast");
+    this.el.addClass("syllabus-toast");
     this.render();
     document.body.appendChild(this.el);
 
@@ -30,16 +30,16 @@ export class Toast {
   private render(): void {
     this.el.empty();
 
-    const content = this.el.createDiv("meridian-toast-content");
-    content.createEl("span", { text: "⚡ ", cls: "meridian-toast-icon" });
-    content.createEl("span", { text: this.message, cls: "meridian-toast-message" });
+    const content = this.el.createDiv("syllabus-toast-content");
+    content.createEl("span", { text: "⚡ ", cls: "syllabus-toast-icon" });
+    content.createEl("span", { text: this.message, cls: "syllabus-toast-message" });
 
     if (this.actions.length > 0) {
-      const actionsEl = this.el.createDiv("meridian-toast-actions");
+      const actionsEl = this.el.createDiv("syllabus-toast-actions");
       for (const action of this.actions) {
         const btn = actionsEl.createEl("button", {
           text: action.label,
-          cls: "meridian-toast-btn",
+          cls: "syllabus-toast-btn",
         });
         btn.addEventListener("click", () => {
           action.onClick();
@@ -56,7 +56,7 @@ export class Toast {
 
   dismiss(): void {
     if (this.timer) clearTimeout(this.timer);
-    this.el.addClass("meridian-toast-hiding");
+    this.el.addClass("syllabus-toast-hiding");
     setTimeout(() => this.el.remove(), 300);
   }
 

@@ -1,4 +1,4 @@
-// Meridian — main plugin entrypoint
+// Syllabus — main plugin entrypoint
 
 import { Notice, Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, type MeridianSettings } from "./settings";

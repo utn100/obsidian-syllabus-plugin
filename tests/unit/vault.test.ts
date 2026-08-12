@@ -27,9 +27,9 @@ describe("initVaultFolders", () => {
   it("creates all folders when none exist", async () => {
     const app = makeApp({ folderExists: false });
     await initVaultFolders(app, DEFAULT_SETTINGS);
-    expect((app as any).vault.createFolder).toHaveBeenCalledWith("meridian");
-    expect((app as any).vault.createFolder).toHaveBeenCalledWith("meridian/concepts");
-    expect((app as any).vault.createFolder).toHaveBeenCalledWith("meridian/inbox/processed");
+    expect((app as any).vault.createFolder).toHaveBeenCalledWith("syllabus");
+    expect((app as any).vault.createFolder).toHaveBeenCalledWith("syllabus/concepts");
+    expect((app as any).vault.createFolder).toHaveBeenCalledWith("syllabus/inbox/processed");
   });
 
   it("does not throw when folders already exist (Obsidian throws 'already exists')", async () => {

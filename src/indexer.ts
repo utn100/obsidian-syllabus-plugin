@@ -39,7 +39,7 @@ export class Indexer {
         done++;
         onProgress?.(done, files.length);
       } catch (e) {
-        console.error(`[Meridian] failed to index ${file.path}:`, e);
+        console.error(`[Syllabus] failed to index ${file.path}:`, e);
       }
     }
     await this.index.save();

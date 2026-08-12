@@ -1,48 +1,48 @@
-.meridian-brief-container {
+.syllabus-brief-container {
   padding: 16px;
   font-size: 14px;
 }
 
-.meridian-brief-header h2 {
+.syllabus-brief-header h2 {
   margin-bottom: 4px;
 }
 
-.meridian-drift-warning {
+.syllabus-drift-warning {
   color: var(--color-orange);
   font-weight: 600;
 }
 
-.meridian-focus-section {
+.syllabus-focus-section {
   margin: 12px 0;
   padding: 12px;
   background: var(--background-secondary);
   border-radius: 6px;
 }
 
-.meridian-focus-task {
+.syllabus-focus-task {
   font-weight: 600;
   margin-bottom: 4px;
 }
 
-.meridian-focus-reason {
+.syllabus-focus-reason {
   color: var(--text-muted);
   font-size: 12px;
   margin-bottom: 4px;
 }
 
-.meridian-resources {
+.syllabus-resources {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
 }
 
-.meridian-related-section,
-.meridian-lang-section,
-.meridian-metrics-section {
+.syllabus-related-section,
+.syllabus-lang-section,
+.syllabus-metrics-section {
   margin: 10px 0;
 }
 
-.meridian-section-label {
+.syllabus-section-label {
   color: var(--text-muted);
   font-size: 12px;
   margin-bottom: 4px;
@@ -50,67 +50,67 @@
   letter-spacing: 0.05em;
 }
 
-.meridian-note-link {
+.syllabus-note-link {
   color: var(--link-color);
   cursor: pointer;
   text-decoration: underline;
 }
 
-.meridian-note-link:hover {
+.syllabus-note-link:hover {
   color: var(--link-color-hover);
 }
 
-.meridian-hint {
+.syllabus-hint {
   font-size: 11px;
   color: var(--text-faint);
   margin-top: 2px;
 }
 
-.meridian-capacity {
+.syllabus-capacity {
   font-weight: 500;
 }
 
-.meridian-top-note {
+.syllabus-top-note {
   font-size: 12px;
   color: var(--text-accent);
   margin-top: 4px;
 }
 
-.meridian-missed {
+.syllabus-missed {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
 }
 
-.meridian-checks-section {
+.syllabus-checks-section {
   margin: 12px 0;
 }
 
-.meridian-check-row {
+.syllabus-check-row {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 6px 0;
 }
 
-.meridian-check-row input[type="checkbox"] {
+.syllabus-check-row input[type="checkbox"] {
   cursor: pointer;
   width: 16px;
   height: 16px;
 }
 
-.meridian-check-row label {
+.syllabus-check-row label {
   cursor: pointer;
 }
 
-.meridian-actions-section {
+.syllabus-actions-section {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.meridian-actions-section button {
+.syllabus-actions-section button {
   width: 100%;
   padding: 6px 12px;
   border-radius: 4px;
@@ -121,32 +121,32 @@
   font-size: 13px;
 }
 
-.meridian-actions-section button:hover {
+.syllabus-actions-section button:hover {
   background: var(--interactive-hover);
 }
 
-.meridian-loading {
+.syllabus-loading {
   color: var(--text-muted);
 }
 
 /* Onboarding modal */
-.meridian-onboarding {
+.syllabus-onboarding {
   max-width: 600px;
 }
 
-.meridian-subtitle {
+.syllabus-subtitle {
   color: var(--text-muted);
   margin-bottom: 16px;
 }
 
-.meridian-template-grid {
+.syllabus-template-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-bottom: 16px;
 }
 
-.meridian-template-btn {
+.syllabus-template-btn {
   padding: 10px 8px;
   border-radius: 6px;
   border: 1px solid var(--background-modifier-border);
@@ -156,28 +156,28 @@
   transition: all 0.15s ease;
 }
 
-.meridian-template-btn:hover {
+.syllabus-template-btn:hover {
   background: var(--background-modifier-hover);
   border-color: var(--interactive-accent);
 }
 
-.meridian-template-selected {
+.syllabus-template-selected {
   background: var(--interactive-accent) !important;
   color: var(--text-on-accent) !important;
   border-color: var(--interactive-accent) !important;
 }
 
-.meridian-template-emoji {
+.syllabus-template-emoji {
   font-size: 20px;
   margin-bottom: 4px;
 }
 
-.meridian-template-label {
+.syllabus-template-label {
   font-size: 11px;
   font-weight: 500;
 }
 
-.meridian-textarea {
+.syllabus-textarea {
   width: 100%;
   padding: 8px;
   border-radius: 4px;
@@ -190,7 +190,7 @@
   margin-bottom: 8px;
 }
 
-.meridian-footer {
+.syllabus-footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -198,7 +198,7 @@
 }
 
 /* Toast notifications */
-.meridian-toast {
+.syllabus-toast {
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -211,40 +211,40 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.3s ease;
-  animation: meridian-toast-in 0.2s ease;
+  animation: syllabus-toast-in 0.2s ease;
 }
 
-@keyframes meridian-toast-in {
+@keyframes syllabus-toast-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.meridian-toast-hiding {
+.syllabus-toast-hiding {
   opacity: 0;
   transform: translateY(8px);
 }
 
-.meridian-toast-content {
+.syllabus-toast-content {
   margin-bottom: 8px;
   font-size: 13px;
   line-height: 1.4;
 }
 
-.meridian-toast-icon {
+.syllabus-toast-icon {
   margin-right: 4px;
 }
 
-.meridian-toast-message {
+.syllabus-toast-message {
   color: var(--text-normal);
 }
 
-.meridian-toast-actions {
+.syllabus-toast-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
 }
 
-.meridian-toast-btn {
+.syllabus-toast-btn {
   padding: 3px 10px;
   font-size: 12px;
   border-radius: 4px;
@@ -254,16 +254,16 @@
   color: var(--text-normal);
 }
 
-.meridian-toast-btn:hover {
+.syllabus-toast-btn:hover {
   background: var(--interactive-hover);
 }
 
 /* Capture modal */
-.meridian-capture-modal .meridian-capture-topic {
+.syllabus-capture-modal .syllabus-capture-topic {
   margin-bottom: 8px;
 }
 
-.meridian-capture-prompt {
+.syllabus-capture-prompt {
   color: var(--text-muted);
   font-size: 13px;
   margin-bottom: 6px;

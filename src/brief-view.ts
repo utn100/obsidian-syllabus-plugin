@@ -27,7 +27,7 @@ export class BriefView extends ItemView {
     // contentEl is the correct container for ItemView content
     const container = this.contentEl;
     container.empty();
-    container.addClass("meridian-brief-container");
+    container.addClass("syllabus-brief-container");
 
     // Load memory
     const memory = await this.plugin.loadMemory();
@@ -39,8 +39,8 @@ export class BriefView extends ItemView {
     }
 
     // Show loading state
-    const loading = container.createEl("p", { text: "⏳ Loading brief...", cls: "meridian-loading" });
-    const debugEl = container.createEl("p", { cls: "meridian-hint" });
+    const loading = container.createEl("p", { text: "⏳ Loading brief...", cls: "syllabus-loading" });
+    const debugEl = container.createEl("p", { cls: "syllabus-hint" });
     debugEl.setText(`Reading plan from: ${this.plugin.settings.meridianFolder}/plans/learning-plan.md | Topics in memory: ${Object.keys(memory.topics).length}`);
 
     try {
@@ -59,73 +59,73 @@ export class BriefView extends ItemView {
 
   private renderBrief(container: HTMLElement, ctx: BriefContext, memory: Memory): void {
     // Header
-    const header = container.createDiv("meridian-brief-header");
+    const header = container.createDiv("syllabus-brief-header");
     header.createEl("h2", { text: `⚡ ${ctx.date}` });
 
     // Drift warning
     if (ctx.driftDays > 1) {
       header.createEl("p", {
         text: `⚠️ ${ctx.driftDays} days behind — catch up today`,
-        cls: "meridian-drift-warning",
+        cls: "syllabus-drift-warning",
       });
     }
 
     // Focus task
-    const focusEl = container.createDiv("meridian-focus-section");
+    const focusEl = container.createDiv("syllabus-focus-section");
     focusEl.createEl("h3", { text: "Today's focus" });
-    const focusText = focusEl.createEl("p", { cls: "meridian-focus-task" });
+    const focusText = focusEl.createEl("p", { cls: "syllabus-focus-task" });
     focusText.setText(ctx.focusTask);
     if (ctx.focusReason) {
-      focusEl.createEl("p", { text: ctx.focusReason, cls: "meridian-focus-reason" });
+      focusEl.createEl("p", { text: ctx.focusReason, cls: "syllabus-focus-reason" });
     }
     if (ctx.resourcesThisWeek && ctx.resourcesThisWeek !== "see learning-plan.md") {
       focusEl.createEl("p", {
         text: `📚 ${ctx.resourcesThisWeek}`,
-        cls: "meridian-resources",
+        cls: "syllabus-resources",
       });
     }
 
     // Related notes
     if (ctx.relatedNotes.length > 0) {
-      const relatedEl = container.createDiv("meridian-related-section");
-      relatedEl.createEl("p", { text: "Related notes:", cls: "meridian-section-label" });
-      const relatedLinks = relatedEl.createEl("p", { cls: "meridian-related-links" });
+      const relatedEl = container.createDiv("syllabus-related-section");
+      relatedEl.createEl("p", { text: "Related notes:", cls: "syllabus-section-label" });
+      const relatedLinks = relatedEl.createEl("p", { cls: "syllabus-related-links" });
       ctx.relatedNotes.forEach((stem, i) => {
         const link = relatedLinks.createEl("a", {
           text: `[[${stem}]]`,
-          cls: "meridian-note-link",
+          cls: "syllabus-note-link",
         });
         link.addEventListener("click", () => this.openNote(stem));
         if (i < ctx.relatedNotes.length - 1) relatedLinks.appendText(" · ");
       });
       relatedEl.createEl("p", {
         text: "→ append there or create new note",
-        cls: "meridian-hint",
+        cls: "syllabus-hint",
       });
     }
 
     // Language progress
     if (ctx.languageProgress.length > 0) {
-      const langEl = container.createDiv("meridian-lang-section");
+      const langEl = container.createDiv("syllabus-lang-section");
       for (const lp of ctx.languageProgress) {
         const streakText = lp.streak > 0 ? ` 🔥 ${lp.streak}d` : "";
         langEl.createEl("p", {
           text: `${lp.name}: ${lp.task}${streakText}`,
-          cls: "meridian-lang-item",
+          cls: "syllabus-lang-item",
         });
       }
     }
 
     // Capacity
-    const metricsEl = container.createDiv("meridian-metrics-section");
+    const metricsEl = container.createDiv("syllabus-metrics-section");
     metricsEl.createEl("p", {
       text: `Capacity: ${ctx.capacityPct}% (${ctx.soWhatFilled}/${ctx.totalTopics} notes filled)`,
-      cls: "meridian-capacity",
+      cls: "syllabus-capacity",
     });
     if (ctx.capacityPct < 60 && ctx.topNote) {
-      const topNoteEl = metricsEl.createEl("p", { cls: "meridian-top-note" });
+      const topNoteEl = metricsEl.createEl("p", { cls: "syllabus-top-note" });
       topNoteEl.appendText("→ Fill ");
-      const link = topNoteEl.createEl("a", { text: `[[${ctx.topNote}]]`, cls: "meridian-note-link" });
+      const link = topNoteEl.createEl("a", { text: `[[${ctx.topNote}]]`, cls: "syllabus-note-link" });
       link.addEventListener("click", () => this.openNote(ctx.topNote));
       topNoteEl.appendText(" today — write one sentence in 'So what'");
     }
@@ -134,14 +134,14 @@ export class BriefView extends ItemView {
     if (ctx.missedConnection) {
       metricsEl.createEl("p", {
         text: `💡 Missed yesterday: [[${ctx.missedConnection}]] had a generic connection — fill 'So what' for a specific one next time`,
-        cls: "meridian-missed",
+        cls: "syllabus-missed",
       });
     }
 
     // Session checkboxes
-    const checkEl = container.createDiv("meridian-checks-section");
+    const checkEl = container.createDiv("syllabus-checks-section");
     checkEl.createEl("hr");
-    checkEl.createEl("p", { text: "Mark yesterday complete:", cls: "meridian-section-label" });
+    checkEl.createEl("p", { text: "Mark yesterday complete:", cls: "syllabus-section-label" });
     this.addSessionCheckbox(checkEl, "ds-ml", "DS/ML session done", memory);
     for (const lp of ctx.languageProgress) {
       const key = lp.name.toLowerCase().replace(/\s+/g, "-");
@@ -149,7 +149,7 @@ export class BriefView extends ItemView {
     }
 
     // Action buttons
-    const actionsEl = container.createDiv("meridian-actions-section");
+    const actionsEl = container.createDiv("syllabus-actions-section");
     actionsEl.createEl("hr");
 
     const openPlanBtn = actionsEl.createEl("button", { text: "Open learning plan" });
@@ -176,7 +176,7 @@ export class BriefView extends ItemView {
     const todaySession = memory.sessions.find(s => s.date === today);
     const isChecked = todaySession?.completed.includes(key) ?? false;
 
-    const row = container.createDiv("meridian-check-row");
+    const row = container.createDiv("syllabus-check-row");
     const checkbox = row.createEl("input");
     checkbox.type = "checkbox";
     checkbox.checked = isChecked;

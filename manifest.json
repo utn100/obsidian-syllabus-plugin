@@ -1,9 +1,9 @@
 {
-  "id": "meridian",
-  "name": "Meridian",
+  "id": "syllabus",
+  "name": "Syllabus",
   "version": "1.0.0",
   "minAppVersion": "1.4.0",
-  "description": "Autonomous learning agent that connects what you study to what you write at work. Daily briefs, work-learning bridge, weekly reviews — all inside Obsidian.",
+  "description": "Autonomous learning agent — generates your learning plan, connects what you study to what you write at work, and keeps you accountable through daily briefs and weekly reviews.",
   "author": "utn100",
   "authorUrl": "https://github.com/utn100/meridian-obsidian-plugin",
   "isDesktopOnly": false

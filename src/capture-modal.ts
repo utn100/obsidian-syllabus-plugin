@@ -18,24 +18,24 @@ export class CaptureModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("meridian-capture-modal");
+    contentEl.addClass("syllabus-capture-modal");
 
     contentEl.createEl("h3", { text: "⚡ Capture insight" });
 
     // Topic selector
-    const topicRow = contentEl.createDiv("meridian-capture-topic");
-    topicRow.createEl("span", { text: "Topic: ", cls: "meridian-section-label" });
+    const topicRow = contentEl.createDiv("syllabus-capture-topic");
+    topicRow.createEl("span", { text: "Topic: ", cls: "syllabus-section-label" });
     const topicEl = topicRow.createEl("span", {
       text: `[[${this.conceptStem}]]`,
-      cls: "meridian-note-link",
+      cls: "syllabus-note-link",
     });
 
     contentEl.createEl("p", {
       text: "What did you just figure out?",
-      cls: "meridian-capture-prompt",
+      cls: "syllabus-capture-prompt",
     });
 
-    this.textarea = contentEl.createEl("textarea", { cls: "meridian-textarea" });
+    this.textarea = contentEl.createEl("textarea", { cls: "syllabus-textarea" });
     this.textarea.rows = 4;
     this.textarea.placeholder =
       "One sentence on how this concept applies to your work right now...";
@@ -49,7 +49,7 @@ export class CaptureModal extends Modal {
       }
     });
 
-    const footer = contentEl.createDiv("meridian-footer");
+    const footer = contentEl.createDiv("syllabus-footer");
 
     const cancelBtn = footer.createEl("button", { text: "Cancel" });
     cancelBtn.addEventListener("click", () => this.close());

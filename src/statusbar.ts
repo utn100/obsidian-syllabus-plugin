@@ -8,25 +8,25 @@ export class StatusBar {
 
   constructor(private statusBarItem: HTMLElement) {
     this.el = statusBarItem;
-    this.el.addClass("meridian-status");
-    this.el.setText("⚡ Meridian");
+    this.el.addClass("syllabus-status");
+    this.el.setText("📚 Syllabus");
   }
 
   update(capacity: number, streak: number): void {
     const streakText = streak > 0 ? `  Streak: ${streak}d 🔥` : "";
-    this.el.setText(`⚡ Meridian  Capacity: ${capacity}%${streakText}`);
+    this.el.setText(`📚 Syllabus  Capacity: ${capacity}%${streakText}`);
   }
 
   setConnecting(): void {
-    this.el.setText("⚡ Meridian  Starting...");
+    this.el.setText("📚 Syllabus  Starting...");
   }
 
   setError(msg: string): void {
-    this.el.setText(`⚡ Meridian  ${msg}`);
-    this.el.addClass("meridian-status-error");
+    this.el.setText(`📚 Syllabus  ${msg}`);
+    this.el.addClass("syllabus-status-error");
   }
 
   clearError(): void {
-    this.el.removeClass("meridian-status-error");
+    this.el.removeClass("syllabus-status-error");
   }
 }

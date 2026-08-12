@@ -123,7 +123,7 @@ export async function processInboxFile(
   } catch (e) {
     processingToast.dismiss();
     Toast.show(app, `Error processing ${file.name}: ${(e as Error).message}`, [], 8000);
-    console.error("[Meridian] inbox error:", e);
+    console.error("[Syllabus] inbox error:", e);
   }
 }
 

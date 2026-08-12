@@ -40,8 +40,8 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   model: "claude-sonnet-latest",
   ollamaUrl: "http://localhost:11434",
 
-  meridianFolder: "meridian",
-  workNotesFolder: "meridian/work-notes",
+  meridianFolder: "syllabus",
+  workNotesFolder: "syllabus/work-notes",
 
   userRole: "PM",
   customRole: "",

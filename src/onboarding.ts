@@ -55,19 +55,19 @@ export class OnboardingModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("meridian-onboarding");
+    contentEl.addClass("syllabus-onboarding");
 
-    contentEl.createEl("h2", { text: "⚡ Welcome to Meridian" });
+    contentEl.createEl("h2", { text: "📚 Welcome to Syllabus" });
     contentEl.createEl("p", {
       text: "Let's set up your personalised learning plan. This takes about 2 minutes.",
-      cls: "meridian-subtitle",
+      cls: "syllabus-subtitle",
     });
 
     // ── Template picker ──────────────────────────────────────────────────
 
     contentEl.createEl("h3", { text: "What are you learning?" });
 
-    const templateGrid = contentEl.createDiv("meridian-template-grid");
+    const templateGrid = contentEl.createDiv("syllabus-template-grid");
     const templates = [
       { id: "pm-ml", label: "Technical PM — DS/ML + AI", emoji: "📊" },
       { id: "engineer-sysdesign", label: "Engineer — System Design + ML", emoji: "⚙️" },
@@ -81,16 +81,16 @@ export class OnboardingModal extends Modal {
 
     const templateButtons: HTMLElement[] = [];
     for (const t of templates) {
-      const btn = templateGrid.createDiv("meridian-template-btn meridian-template-selected");
-      btn.createEl("div", { text: t.emoji, cls: "meridian-template-emoji" });
-      btn.createEl("div", { text: t.label, cls: "meridian-template-label" });
+      const btn = templateGrid.createDiv("syllabus-template-btn syllabus-template-selected");
+      btn.createEl("div", { text: t.emoji, cls: "syllabus-template-emoji" });
+      btn.createEl("div", { text: t.label, cls: "syllabus-template-label" });
       btn.dataset.id = t.id;
 
-      if (t.id !== "pm-ml") btn.removeClass("meridian-template-selected");
+      if (t.id !== "pm-ml") btn.removeClass("syllabus-template-selected");
 
       btn.addEventListener("click", () => {
-        templateButtons.forEach((b) => b.removeClass("meridian-template-selected"));
-        btn.addClass("meridian-template-selected");
+        templateButtons.forEach((b) => b.removeClass("syllabus-template-selected"));
+        btn.addClass("syllabus-template-selected");
         selectedTemplate = t.id;
         this.applyTemplate(t.id);
         goalsTextarea.value = this.params.goals;
@@ -104,7 +104,7 @@ export class OnboardingModal extends Modal {
 
     contentEl.createEl("h3", { text: "What do you want to achieve?" });
     const goalsTextarea = contentEl.createEl("textarea", {
-      cls: "meridian-textarea",
+      cls: "syllabus-textarea",
     });
     goalsTextarea.rows = 4;
     goalsTextarea.value = this.params.goals;
@@ -118,7 +118,7 @@ export class OnboardingModal extends Modal {
 
     contentEl.createEl("h3", { text: "Your background (optional but recommended)" });
     const contextTextarea = contentEl.createEl("textarea", {
-      cls: "meridian-textarea",
+      cls: "syllabus-textarea",
     });
     contextTextarea.rows = 3;
     contextTextarea.value = this.params.context;
@@ -172,7 +172,7 @@ export class OnboardingModal extends Modal {
     contentEl.createEl("h3", { text: "Language goal (optional)" });
     contentEl.createEl("p", {
       text: "If you're learning a language alongside your main goals, add it here.",
-      cls: "meridian-hint",
+      cls: "syllabus-hint",
     });
     new Setting(contentEl)
       .setName("Language goal")
@@ -185,12 +185,12 @@ export class OnboardingModal extends Modal {
 
     // ── Progress indicator ───────────────────────────────────────────────
 
-    this.progressEl = contentEl.createDiv("meridian-progress");
+    this.progressEl = contentEl.createDiv("syllabus-progress");
     this.progressEl.hide();
 
     // ── Generate button ──────────────────────────────────────────────────
 
-    const footer = contentEl.createDiv("meridian-footer");
+    const footer = contentEl.createDiv("syllabus-footer");
     const generateBtn = footer.createEl("button", {
       text: "Generate my learning plan →",
       cls: "mod-cta",
@@ -243,7 +243,7 @@ export class OnboardingModal extends Modal {
 
       } catch (e) {
         const msg = (e as Error).message ?? String(e);
-        console.error("[Meridian] setup error:", e);
+        console.error("[Syllabus] setup error:", e);
         new Notice(`Setup failed: ${msg}`, 8000);
         generateBtn.disabled = false;
         generateBtn.textContent = "Generate my learning plan →";
