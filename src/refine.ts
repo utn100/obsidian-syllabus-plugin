@@ -1,11 +1,133 @@
-// Plan refinement — reads plan-feedback.md, applies surgical changes via LLM
+// Plan refinement modal — guides user to write feedback then refine
 
-import { App, Modal, TFile } from "obsidian";
+import { App, Modal, Notice, TFile } from "obsidian";
 import type MeridianPlugin from "./main";
 import { SYSTEM_PROMPT } from "./prompts";
 import { stripCodeFence, extractTopicsFromPlan } from "./memory";
 
-export async function runRefinePlan(app: App, plugin: MeridianPlugin): Promise<void> {
+export class RefinePlanModal extends Modal {
+  constructor(app: App, private plugin: MeridianPlugin) {
+    super(app);
+  }
+
+  async onOpen(): Promise<void> {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("syllabus-onboarding");
+
+    contentEl.createEl("h3", { text: "📝 Refine your learning plan" });
+
+    const base = this.plugin.settings.meridianFolder;
+    const feedbackPath = `${base}/plans/plan-feedback.md`;
+    const feedbackFile = this.app.vault.getAbstractFileByPath(feedbackPath);
+
+    if (!feedbackFile) {
+      contentEl.createEl("p", { text: "No plan-feedback.md found. Run setup first." });
+      const footer = contentEl.createDiv("syllabus-footer");
+      footer.createEl("button", { text: "Close" }).addEventListener("click", () => this.close());
+      return;
+    }
+
+    contentEl.createEl("p", {
+      text: "Write your feedback in the file below, then click Refine. Be specific — reference week numbers or topic names.",
+      cls: "syllabus-hint",
+    });
+
+    contentEl.createEl("p", {
+      text: "Examples:",
+      cls: "syllabus-section-label",
+    });
+
+    const examples = contentEl.createEl("ul");
+    examples.createEl("li", { text: "Week 3 is too dense — split across two weeks" });
+    examples.createEl("li", { text: "Move RLHF earlier, it's directly relevant to my current work" });
+    examples.createEl("li", { text: "Add a week on causal inference after week 8" });
+
+    // Open feedback file button
+    const openBtn = contentEl.createEl("button", {
+      text: "Open plan-feedback.md →",
+      cls: "mod-cta",
+    });
+    openBtn.style.marginTop = "12px";
+    openBtn.addEventListener("click", async () => {
+      if (feedbackFile instanceof TFile) {
+        await this.app.workspace.getLeaf(false).openFile(feedbackFile);
+      }
+    });
+
+    contentEl.createEl("hr");
+    contentEl.createEl("p", {
+      text: "Once you've added your feedback, click Refine to apply it.",
+      cls: "syllabus-hint",
+    });
+
+    const progressEl = contentEl.createDiv("syllabus-progress");
+    progressEl.hide();
+
+    const footer = contentEl.createDiv("syllabus-footer");
+
+    const cancelBtn = footer.createEl("button", { text: "Cancel" });
+    cancelBtn.addEventListener("click", () => this.close());
+
+    const refineBtn = footer.createEl("button", { text: "Refine plan", cls: "mod-cta" });
+    refineBtn.addEventListener("click", async () => {
+      refineBtn.disabled = true;
+      refineBtn.setText("Refining...");
+      progressEl.show();
+      progressEl.setText("⏳ Applying feedback to your plan...");
+
+      try {
+        const changes = await runRefinePlan(this.app, this.plugin);
+        this.close();
+
+        // Show change summary
+        new ChangeSummaryModal(this.app, changes).open();
+      } catch (e) {
+        progressEl.setText(`Error: ${(e as Error).message}`);
+        refineBtn.disabled = false;
+        refineBtn.setText("Retry");
+      }
+    });
+  }
+
+  onClose(): void {
+    this.contentEl.empty();
+  }
+}
+
+class ChangeSummaryModal extends Modal {
+  constructor(app: App, private changes: string[]) {
+    super(app);
+  }
+
+  onOpen(): void {
+    const { contentEl } = this;
+    contentEl.createEl("h3", { text: "✓ Plan updated" });
+
+    if (this.changes.length > 0) {
+      contentEl.createEl("p", { text: "Changes applied:", cls: "syllabus-section-label" });
+      const list = contentEl.createEl("ul");
+      for (const c of this.changes) {
+        list.createEl("li", { text: c });
+      }
+    } else {
+      contentEl.createEl("p", { text: "Plan updated successfully." });
+    }
+
+    const footer = contentEl.createDiv("syllabus-footer");
+    footer.createEl("button", { text: "Done", cls: "mod-cta" })
+      .addEventListener("click", () => this.close());
+  }
+
+  onClose(): void { this.contentEl.empty(); }
+}
+
+// ── Core refinement logic ──────────────────────────────────────────────────
+
+export async function runRefinePlan(
+  app: App,
+  plugin: MeridianPlugin
+): Promise<string[]> {
   const base = plugin.settings.meridianFolder;
   const planPath = `${base}/plans/learning-plan.md`;
   const feedbackPath = `${base}/plans/plan-feedback.md`;
@@ -17,13 +139,12 @@ export async function runRefinePlan(app: App, plugin: MeridianPlugin): Promise<v
 
   const feedbackFile = app.vault.getAbstractFileByPath(feedbackPath);
   if (!(feedbackFile instanceof TFile)) {
-    throw new Error("No plan-feedback.md found. Create it first.");
+    throw new Error("No plan-feedback.md found.");
   }
 
   const currentPlan = await app.vault.read(planFile);
   const feedback = await app.vault.read(feedbackFile);
 
-  // Check feedback has real content
   const meaningful = feedback.split("\n").filter(l =>
     l.trim() && !l.trim().startsWith("#") && !l.trim().startsWith("<!--") &&
     !l.trim().startsWith("-->") && l.trim() !== "---" &&
@@ -41,7 +162,6 @@ export async function runRefinePlan(app: App, plugin: MeridianPlugin): Promise<v
 Make ONLY the changes requested in the feedback below.
 - Preserve everything else exactly as-is
 - Keep the same markdown structure and formatting
-- After making changes, re-check prerequisite ordering
 - Every week header must have real dates (YYYY-MM-DD – YYYY-MM-DD)
 
 ## Current plan
@@ -69,7 +189,6 @@ Today: ${today}`;
 
   const raw = stripCodeFence(response.text);
 
-  // Parse change summary
   const changesMatch = raw.match(/<!--\s*CHANGES\s*\n([\s\S]*?)\n-->/);
   const changes = changesMatch
     ? changesMatch[1].split("\n")
@@ -77,10 +196,7 @@ Today: ${today}`;
         .filter(Boolean)
     : [];
 
-  // Strip changes block from plan
   const planText = raw.replace(/<!--\s*CHANGES[\s\S]*?-->\s*\n?/, "").trim();
-
-  // Write updated plan
   await app.vault.modify(planFile, planText);
 
   // Sync new topics to memory
@@ -102,33 +218,5 @@ Today: ${today}`;
     }
   }
 
-  // Show change summary modal
-  new ChangeSummaryModal(app, changes).open();
-}
-
-class ChangeSummaryModal extends Modal {
-  constructor(app: App, private changes: string[]) {
-    super(app);
-  }
-
-  onOpen(): void {
-    const { contentEl } = this;
-    contentEl.createEl("h3", { text: "Plan updated" });
-
-    if (this.changes.length > 0) {
-      contentEl.createEl("p", { text: "Changes applied:", cls: "syllabus-section-label" });
-      const list = contentEl.createEl("ul");
-      for (const c of this.changes) {
-        list.createEl("li", { text: c });
-      }
-    } else {
-      contentEl.createEl("p", { text: "Plan updated (no change summary available)" });
-    }
-
-    const footer = contentEl.createDiv("syllabus-footer");
-    footer.createEl("button", { text: "OK", cls: "mod-cta" })
-      .addEventListener("click", () => this.close());
-  }
-
-  onClose(): void { this.contentEl.empty(); }
+  return changes;
 }

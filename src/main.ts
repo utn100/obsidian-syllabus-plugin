@@ -14,7 +14,7 @@ import { calcCapacity, type Memory } from "./memory";
 import { scheduleBridge, cancelBridge } from "./bridge";
 import { CaptureModal } from "./capture-modal";
 import { processInboxFile } from "./inbox";
-import { runRefinePlan } from "./refine";
+import { RefinePlanModal } from "./refine";
 
 export default class MeridianPlugin extends Plugin {
   settings: MeridianSettings;
@@ -46,10 +46,7 @@ export default class MeridianPlugin extends Plugin {
       menu.addItem(i => i.setTitle("Capture insight").setIcon("pencil")
         .onClick(() => new CaptureModal(this.app, this, "").open()));
       menu.addItem(i => i.setTitle("Refine plan from feedback").setIcon("git-branch")
-        .onClick(async () => {
-          try { await runRefinePlan(this.app, this); }
-          catch (e) { new Notice((e as Error).message, 5000); }
-        }));
+        .onClick(() => new RefinePlanModal(this.app, this).open()));
       menu.addItem(i => i.setTitle("Sync notes").setIcon("refresh-cw")
         .onClick(() => this.reindexAllNotes()));
       menu.addSeparator();
@@ -69,10 +66,7 @@ export default class MeridianPlugin extends Plugin {
       menu.addItem(i => i.setTitle("Capture insight").setIcon("pencil")
         .onClick(() => new CaptureModal(this.app, this, "").open()));
       menu.addItem(i => i.setTitle("Refine plan from feedback").setIcon("git-branch")
-        .onClick(async () => {
-          try { await runRefinePlan(this.app, this); }
-          catch (e) { new Notice((e as Error).message, 5000); }
-        }));
+        .onClick(() => new RefinePlanModal(this.app, this).open()));
       menu.addItem(i => i.setTitle("Sync notes").setIcon("refresh-cw")
         .onClick(() => this.reindexAllNotes()));
       menu.addSeparator();
@@ -145,14 +139,7 @@ export default class MeridianPlugin extends Plugin {
     this.addCommand({
       id: "refine-plan",
       name: "Refine plan from feedback",
-      callback: async () => {
-        new Notice("Refining plan...");
-        try {
-          await runRefinePlan(this.app, this);
-        } catch (e) {
-          new Notice(`Refine failed: ${(e as Error).message}`, 6000);
-        }
-      },
+      callback: () => new RefinePlanModal(this.app, this).open(),
     });
 
     this.addCommand({
