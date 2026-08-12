@@ -1,15 +1,20 @@
-// Status bar item — shows capacity % and streak
+// Status bar item — shows capacity % and streak, clickable for menu
 
-import { App } from "obsidian";
+import { Menu } from "obsidian";
 import type { MeridianSettings } from "./settings";
 
 export class StatusBar {
   private el: HTMLElement;
 
-  constructor(private statusBarItem: HTMLElement) {
+  constructor(
+    private statusBarItem: HTMLElement,
+    private onMenuRequest: (evt: MouseEvent) => void
+  ) {
     this.el = statusBarItem;
     this.el.addClass("syllabus-status");
+    this.el.style.cursor = "pointer";
     this.el.setText("📚 Syllabus");
+    this.el.addEventListener("click", (evt) => this.onMenuRequest(evt));
   }
 
   update(capacity: number, streak: number): void {

@@ -58,8 +58,28 @@ export default class MeridianPlugin extends Plugin {
       menu.showAtMouseEvent(evt);
     });
 
-    // Status bar
-    this.statusBar = new StatusBar(this.addStatusBarItem());
+    // Status bar — click to open menu
+    this.statusBar = new StatusBar(this.addStatusBarItem(), (evt) => {
+      const menu = new Menu();
+      menu.addItem(i => i.setTitle("Open daily brief").setIcon("book-open")
+        .onClick(() => this.openBriefSidebar()));
+      menu.addItem(i => i.setTitle("Open weekly review").setIcon("calendar-check")
+        .onClick(() => this.openReviewSidebar()));
+      menu.addSeparator();
+      menu.addItem(i => i.setTitle("Capture insight").setIcon("pencil")
+        .onClick(() => new CaptureModal(this.app, this, "").open()));
+      menu.addItem(i => i.setTitle("Refine plan from feedback").setIcon("git-branch")
+        .onClick(async () => {
+          try { await runRefinePlan(this.app, this); }
+          catch (e) { new Notice((e as Error).message, 5000); }
+        }));
+      menu.addItem(i => i.setTitle("Sync notes").setIcon("refresh-cw")
+        .onClick(() => this.reindexAllNotes()));
+      menu.addSeparator();
+      menu.addItem(i => i.setTitle("Set up learning plan").setIcon("settings")
+        .onClick(() => new OnboardingModal(this.app, this).open()));
+      menu.showAtMouseEvent(evt);
+    });
 
     // Settings tab
     this.addSettingTab(new MeridianSettingTab(this.app, this));
