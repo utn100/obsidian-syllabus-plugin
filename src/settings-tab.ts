@@ -143,13 +143,29 @@ export class MeridianSettingTab extends PluginSettingTab {
           .addOption("Consultant", "Consultant")
           .addOption("Researcher", "Researcher")
           .addOption("Executive", "Executive")
-          .addOption("Other", "Other")
+          .addOption("Other", "Other (specify below)")
           .setValue(this.plugin.settings.userRole)
           .onChange(async (v) => {
             this.plugin.settings.userRole = v;
             await this.plugin.saveSettings();
+            this.display(); // re-render to show/hide custom role field
           })
       );
+
+    if (this.plugin.settings.userRole === "Other") {
+      new Setting(containerEl)
+        .setName("Custom role")
+        .setDesc('Will appear as "So what for [your role]" in concept notes')
+        .addText((t) =>
+          t
+            .setPlaceholder("e.g. Data Scientist, Designer, Teacher")
+            .setValue(this.plugin.settings.customRole)
+            .onChange(async (v) => {
+              this.plugin.settings.customRole = v;
+              await this.plugin.saveSettings();
+            })
+        );
+    }
 
     // ── Notifications ─────────────────────────────────────────────────────
 
@@ -222,15 +238,15 @@ export class MeridianSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Embedding backend")
       .setDesc(
-        "Local: uses @xenova/transformers (~23MB download, fully offline). OpenAI: faster, requires API key."
+        "OpenAI: uses text-embedding-3-small API (fast, requires API key). Local: not supported in this version."
       )
       .addDropdown((dd) =>
         dd
-          .addOption("local", "Local (offline)")
-          .addOption("openai", "OpenAI API")
+          .addOption("openai", "OpenAI API (recommended)")
+          .addOption("local", "Local — not supported yet")
           .setValue(this.plugin.settings.embeddingBackend)
           .onChange(async (v) => {
-            this.plugin.settings.embeddingBackend = v as "local" | "openai";
+            this.plugin.settings.embeddingBackend = v as "openai" | "local";
             await this.plugin.saveSettings();
           })
       );

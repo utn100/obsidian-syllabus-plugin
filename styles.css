@@ -1,0 +1,207 @@
+.meridian-brief-container {
+  padding: 16px;
+  font-size: 14px;
+}
+
+.meridian-brief-header h2 {
+  margin-bottom: 4px;
+}
+
+.meridian-drift-warning {
+  color: var(--color-orange);
+  font-weight: 600;
+}
+
+.meridian-focus-section {
+  margin: 12px 0;
+  padding: 12px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+}
+
+.meridian-focus-task {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.meridian-focus-reason {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.meridian-resources {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.meridian-related-section,
+.meridian-lang-section,
+.meridian-metrics-section {
+  margin: 10px 0;
+}
+
+.meridian-section-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meridian-note-link {
+  color: var(--link-color);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.meridian-note-link:hover {
+  color: var(--link-color-hover);
+}
+
+.meridian-hint {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+.meridian-capacity {
+  font-weight: 500;
+}
+
+.meridian-top-note {
+  font-size: 12px;
+  color: var(--text-accent);
+  margin-top: 4px;
+}
+
+.meridian-missed {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.meridian-checks-section {
+  margin: 12px 0;
+}
+
+.meridian-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.meridian-check-row input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.meridian-check-row label {
+  cursor: pointer;
+}
+
+.meridian-actions-section {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meridian-actions-section button {
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--interactive-normal);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  font-size: 13px;
+}
+
+.meridian-actions-section button:hover {
+  background: var(--interactive-hover);
+}
+
+.meridian-loading {
+  color: var(--text-muted);
+}
+
+/* Onboarding modal */
+.meridian-onboarding {
+  max-width: 600px;
+}
+
+.meridian-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.meridian-template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.meridian-template-btn {
+  padding: 10px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  text-align: center;
+  background: var(--background-secondary);
+  transition: all 0.15s ease;
+}
+
+.meridian-template-btn:hover {
+  background: var(--background-modifier-hover);
+  border-color: var(--interactive-accent);
+}
+
+.meridian-template-selected {
+  background: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+  border-color: var(--interactive-accent) !important;
+}
+
+.meridian-template-emoji {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.meridian-template-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.meridian-textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.meridian-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.meridian-progress {
+  padding: 8px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 12px;
+}

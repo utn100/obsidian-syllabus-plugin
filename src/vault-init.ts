@@ -1,7 +1,28 @@
 // Vault folder initialisation — creates the Meridian directory tree on first enable
 
-import { App, TFolder } from "obsidian";
+import { App } from "obsidian";
 import type { MeridianSettings } from "./settings";
+
+async function ensureFolder(app: App, path: string): Promise<void> {
+  try {
+    await app.vault.createFolder(path);
+  } catch (e) {
+    // Ignore "Folder already exists" — it's fine
+    const msg = (e as Error).message ?? "";
+    if (!msg.includes("already exists")) throw e;
+  }
+}
+
+async function ensureFile(app: App, path: string, content: string): Promise<void> {
+  if (!app.vault.getAbstractFileByPath(path)) {
+    try {
+      await app.vault.create(path, content);
+    } catch (e) {
+      const msg = (e as Error).message ?? "";
+      if (!msg.includes("already exists")) throw e;
+    }
+  }
+}
 
 export async function initVaultFolders(
   app: App,
@@ -22,33 +43,11 @@ export async function initVaultFolders(
   ];
 
   for (const folder of folders) {
-    if (!app.vault.getAbstractFileByPath(folder)) {
-      await app.vault.createFolder(folder);
-    }
+    await ensureFolder(app, folder);
   }
 
-  // Write stub files if they don't exist
-  await ensureFile(
-    app,
-    `${base}/plans/plan-feedback.md`,
-    PLAN_FEEDBACK_STUB
-  );
-
-  await ensureFile(
-    app,
-    `${base}/memory.json`,
-    JSON.stringify(EMPTY_MEMORY, null, 2)
-  );
-}
-
-async function ensureFile(
-  app: App,
-  path: string,
-  content: string
-): Promise<void> {
-  if (!app.vault.getAbstractFileByPath(path)) {
-    await app.vault.create(path, content);
-  }
+  await ensureFile(app, `${base}/plans/plan-feedback.md`, PLAN_FEEDBACK_STUB);
+  await ensureFile(app, `${base}/memory.json`, JSON.stringify(EMPTY_MEMORY, null, 2));
 }
 
 const PLAN_FEEDBACK_STUB = `# Plan Feedback

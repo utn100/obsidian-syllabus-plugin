@@ -15,6 +15,7 @@ export interface MeridianSettings {
 
   // Profile
   userRole: string;
+  customRole: string;  // used when userRole === "Other"
   briefTime: string; // "HH:MM"
 
   // Notifications
@@ -25,7 +26,7 @@ export interface MeridianSettings {
   weeklyReviewTime: string; // "HH:MM"
 
   // Embeddings
-  embeddingBackend: "local" | "openai";
+  embeddingBackend: "openai" | "local";
 
   // Internal
   setupComplete: boolean;
@@ -43,6 +44,7 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   workNotesFolder: "meridian/work-notes",
 
   userRole: "PM",
+  customRole: "",
   briefTime: "07:00",
 
   briefOnOpen: true,
@@ -51,7 +53,7 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   weeklyReviewDay: 0, // Sunday
   weeklyReviewTime: "20:00",
 
-  embeddingBackend: "local",
+  embeddingBackend: "openai",
 
   setupComplete: false,
   lastBriefDate: "",

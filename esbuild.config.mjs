@@ -10,6 +10,7 @@ const context = await esbuild.context({
   external: [
     "obsidian",
     "electron",
+    "@xenova/transformers",
     "@codemirror/autocomplete",
     "@codemirror/collab",
     "@codemirror/commands",
@@ -24,7 +25,7 @@ const context = await esbuild.context({
     ...builtins,
   ],
   format: "cjs",
-  target: "es2018",
+  target: "es2020",
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,
