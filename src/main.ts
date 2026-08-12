@@ -155,20 +155,23 @@ export default class MeridianPlugin extends Plugin {
 
     // Init vault folders on first enable (or if folder missing)
     this.app.workspace.onLayoutReady(async () => {
-      if (!this.settings.setupComplete) {
-        await initVaultFolders(this.app, this.settings);
-      }
+      await initVaultFolders(this.app, this.settings);
 
       // Load existing index from vault
       await this.indexer.init();
 
-      // Auto-open brief if not yet shown today and setup is complete
-      if (this.settings.setupComplete && this.settings.briefOnOpen) {
-        const today = new Date().toISOString().slice(0, 10);
-        if (this.settings.lastBriefDate !== today) {
-          this.settings.lastBriefDate = today;
-          await this.saveSettings();
-          this.openBriefSidebar();
+      // Auto-open brief if: notifications enabled, plan exists, not yet shown today
+      if (this.settings.briefOnOpen) {
+        const planPath = `${this.settings.meridianFolder}/plans/learning-plan.md`;
+        const planExists = !!this.app.vault.getAbstractFileByPath(planPath);
+        if (planExists) {
+          const today = new Date().toISOString().slice(0, 10);
+          if (this.settings.lastBriefDate !== today) {
+            this.settings.lastBriefDate = today;
+            await this.saveSettings();
+            // Small delay so Obsidian workspace is fully ready
+            setTimeout(() => this.openBriefSidebar(), 1000);
+          }
         }
       }
 
