@@ -34,6 +34,7 @@ export interface MeridianSettings {
   savedLanguageGoal: string;
   savedHoursPerWeek: number;
   savedDurationMonths: number;
+  savedStartDate: string;
 
   // Internal
   lastBriefDate: string;
@@ -66,6 +67,7 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   savedLanguageGoal: "",
   savedHoursPerWeek: 10,
   savedDurationMonths: 6,
+  savedStartDate: "",
 
   lastBriefDate: "",
   lastWeeklyReviewDate: "",

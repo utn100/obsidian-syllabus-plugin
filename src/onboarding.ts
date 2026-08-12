@@ -44,11 +44,13 @@ export class OnboardingModal extends Modal {
     super(app);
     // Reload saved values from previous session
     const s = plugin.settings;
+    const savedMonths = s.savedDurationMonths || 6;
+    const savedStart = s.savedStartDate || new Date().toISOString().slice(0, 10);
     this.params = {
       goals: s.savedGoals || "",
       hoursPerWeek: s.savedHoursPerWeek || 10,
-      startDate: new Date().toISOString().slice(0, 10),
-      endDate: addMonths(new Date(), s.savedDurationMonths || 6).toISOString().slice(0, 10),
+      startDate: savedStart,
+      endDate: addMonths(new Date(savedStart), savedMonths).toISOString().slice(0, 10),
       userRole: plugin.userRole,
       context: s.savedContext || "",
       languageGoal: s.savedLanguageGoal || "",
@@ -149,9 +151,13 @@ export class OnboardingModal extends Modal {
           .setLimits(3, 20, 1)
           .setValue(this.params.hoursPerWeek)
           .setDynamicTooltip()
-          .onChange((v) => { this.params.hoursPerWeek = v; })
+          .onChange((v) => {
+            this.params.hoursPerWeek = v;
+            this.saveInputs();
+          })
       );
 
+    const savedMonths = this.plugin.settings.savedDurationMonths || 6;
     new Setting(contentEl)
       .setName("Duration")
       .addDropdown((dd) =>
@@ -160,12 +166,14 @@ export class OnboardingModal extends Modal {
           .addOption("4", "4 months")
           .addOption("6", "6 months")
           .addOption("12", "12 months")
-          .setValue("6")
+          .setValue(String(savedMonths))
           .onChange((v) => {
+            this.plugin.settings.savedDurationMonths = parseInt(v);
             this.params.endDate = addMonths(
               new Date(this.params.startDate),
               parseInt(v)
             ).toISOString().slice(0, 10);
+            this.saveInputs();
           })
       );
 
@@ -174,7 +182,10 @@ export class OnboardingModal extends Modal {
       .addText((t) =>
         t
           .setValue(this.params.startDate)
-          .onChange((v) => { this.params.startDate = v; })
+          .onChange((v) => {
+            this.params.startDate = v;
+            this.saveInputs();
+          })
       );
 
     // ── Language goal ────────────────────────────────────────────────────
@@ -190,7 +201,11 @@ export class OnboardingModal extends Modal {
       .addText((t) =>
         t
           .setPlaceholder("Leave blank if none")
-          .onChange((v) => { this.params.languageGoal = v; })
+          .setValue(this.params.languageGoal ?? "")
+          .onChange((v) => {
+            this.params.languageGoal = v;
+            this.saveInputs();
+          })
       );
 
     // ── Progress indicator ───────────────────────────────────────────────
@@ -292,6 +307,7 @@ export class OnboardingModal extends Modal {
     this.plugin.settings.savedContext = this.params.context;
     this.plugin.settings.savedLanguageGoal = this.params.languageGoal ?? "";
     this.plugin.settings.savedHoursPerWeek = this.params.hoursPerWeek;
+    this.plugin.settings.savedStartDate = this.params.startDate;
     this.plugin.saveSettings(); // fire-and-forget
   }
 
