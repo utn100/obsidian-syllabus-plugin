@@ -17,7 +17,8 @@ export interface LLMClient {
   complete(
     messages: LLMMessage[],
     systemPrompt?: string,
-    maxTokens?: number
+    maxTokens?: number,
+    signal?: AbortSignal
   ): Promise<LLMResponse>;
 }
 
@@ -32,7 +33,8 @@ export class AnthropicClient implements LLMClient {
   async complete(
     messages: LLMMessage[],
     systemPrompt?: string,
-    maxTokens = 8192
+    maxTokens = 8192,
+    signal?: AbortSignal
   ): Promise<LLMResponse> {
     const body: Record<string, unknown> = {
       model: this.model,
@@ -49,6 +51,7 @@ export class AnthropicClient implements LLMClient {
         "content-type": "application/json",
       },
       body: JSON.stringify(body),
+      signal,
     });
 
     if (!res.ok) {
@@ -76,7 +79,8 @@ export class OpenAIClient implements LLMClient {
   async complete(
     messages: LLMMessage[],
     systemPrompt?: string,
-    maxTokens = 8192
+    maxTokens = 8192,
+    signal?: AbortSignal
   ): Promise<LLMResponse> {
     const allMessages = systemPrompt
       ? [{ role: "system" as const, content: systemPrompt }, ...messages]
@@ -93,6 +97,7 @@ export class OpenAIClient implements LLMClient {
         max_tokens: maxTokens,
         messages: allMessages,
       }),
+      signal,
     });
 
     if (!res.ok) {
@@ -120,7 +125,8 @@ export class OllamaClient implements LLMClient {
   async complete(
     messages: LLMMessage[],
     systemPrompt?: string,
-    maxTokens = 8192
+    maxTokens = 8192,
+    signal?: AbortSignal
   ): Promise<LLMResponse> {
     const allMessages = systemPrompt
       ? [{ role: "system" as const, content: systemPrompt }, ...messages]
@@ -135,6 +141,7 @@ export class OllamaClient implements LLMClient {
         stream: false,
         options: { num_predict: maxTokens },
       }),
+      signal,
     });
 
     if (!res.ok) {
@@ -169,17 +176,13 @@ export function makeLLMClient(settings: {
   }
 }
 
-// Default models per provider
 export const DEFAULT_MODELS: Record<LLMProvider, string> = {
   anthropic: "claude-sonnet-latest",
   openai: "gpt-4o",
   ollama: "llama3.2",
 };
 
-// Test a connection — returns null on success, error message on failure
-export async function testConnection(
-  client: LLMClient
-): Promise<string | null> {
+export async function testConnection(client: LLMClient): Promise<string | null> {
   try {
     const res = await client.complete(
       [{ role: "user", content: "Reply with exactly: ok" }],

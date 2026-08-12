@@ -41,7 +41,8 @@ export async function runSetup(
   llm: LLMClient,
   indexer: Indexer,
   params: SetupParams,
-  onProgress: (step: string) => void
+  onProgress: (step: string) => void,
+  signal?: AbortSignal
 ): Promise<SetupResult> {
   const base = settings.meridianFolder;
 
@@ -72,9 +73,12 @@ export async function runSetup(
   const planResponse = await llm.complete(
     [{ role: "user", content: planPrompt }],
     SYSTEM_PROMPT,
-    16000
+    16000,
+    signal
   );
-  const planText = stripCodeFence(planResponse.text);
+  signal?.throwIfAborted();
+  // Strip code fences but preserve leading --- (YAML frontmatter)
+  const planText = stripCodeFence(planResponse.text).replace(/^-{3,}\s*\n(?=---)/, "");
 
   // Step 3: write plan to vault
   onProgress("Writing plan to vault...");

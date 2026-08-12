@@ -196,7 +196,10 @@ Today: ${today}`;
         .filter(Boolean)
     : [];
 
-  const planText = raw.replace(/<!--\s*CHANGES[\s\S]*?-->\s*\n?/, "").trim();
+  const planText = raw
+    .replace(/<!--\s*CHANGES[\s\S]*?-->\s*\n?/, "")
+    .replace(/^-{3,}\s*\n(?=---)/, "") // remove spurious leading ---
+    .trim();
   await app.vault.modify(planFile, planText);
 
   // Sync new topics to memory

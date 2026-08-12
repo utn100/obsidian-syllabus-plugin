@@ -38,6 +38,7 @@ const TEMPLATES: Record<string, Partial<SetupParams>> = {
 export class OnboardingModal extends Modal {
   private params: SetupParams;
   private progressEl: HTMLElement | null = null;
+  private abortController: AbortController | null = null;
 
   constructor(app: App, private plugin: MeridianPlugin) {
     super(app);
@@ -197,12 +198,27 @@ export class OnboardingModal extends Modal {
     this.progressEl = contentEl.createDiv("syllabus-progress");
     this.progressEl.hide();
 
-    // ── Generate button ──────────────────────────────────────────────────
+    // ── Footer buttons ───────────────────────────────────────────────────
 
     const footer = contentEl.createDiv("syllabus-footer");
+
+    const cancelBtn = footer.createEl("button", { text: "Cancel" });
+    cancelBtn.style.display = "none"; // hidden until generation starts
+
     const generateBtn = footer.createEl("button", {
       text: "Generate my learning plan →",
       cls: "mod-cta",
+    });
+
+    cancelBtn.addEventListener("click", () => {
+      if (this.abortController) {
+        this.abortController.abort();
+        this.abortController = null;
+      }
+      generateBtn.disabled = false;
+      generateBtn.textContent = "Generate my learning plan →";
+      cancelBtn.style.display = "none";
+      this.showProgress("Cancelled.");
     });
 
     generateBtn.addEventListener("click", async () => {
@@ -223,8 +239,10 @@ export class OnboardingModal extends Modal {
         if (!confirmed) return;
       }
 
+      this.abortController = new AbortController();
       generateBtn.disabled = true;
       generateBtn.textContent = "Generating...";
+      cancelBtn.style.display = "";
       this.showProgress("Starting setup...");
 
       try {
@@ -234,9 +252,11 @@ export class OnboardingModal extends Modal {
           this.plugin.llmClient,
           this.plugin.indexer,
           this.params,
-          (step) => this.showProgress(step)
+          (step) => this.showProgress(step),
+          this.abortController.signal
         );
 
+        this.abortController = null;
         this.plugin.settings.setupComplete = true;
         await this.plugin.saveSettings();
 
@@ -252,11 +272,17 @@ export class OnboardingModal extends Modal {
 
       } catch (e) {
         const msg = (e as Error).message ?? String(e);
-        console.error("[Syllabus] setup error:", e);
-        new Notice(`Setup failed: ${msg}`, 8000);
+        if (msg.includes("AbortError") || msg.includes("aborted")) {
+          this.showProgress("Cancelled.");
+        } else {
+          console.error("[Syllabus] setup error:", e);
+          new Notice(`Setup failed: ${msg}`, 8000);
+          this.showProgress(`Error: ${msg}`);
+        }
+        this.abortController = null;
         generateBtn.disabled = false;
         generateBtn.textContent = "Generate my learning plan →";
-        this.showProgress(`Error: ${msg}`);
+        cancelBtn.style.display = "none";
       }
     });
   }
