@@ -5,6 +5,6 @@
   "minAppVersion": "1.4.0",
   "description": "Autonomous learning agent — generates your learning plan, connects what you study to what you write at work, and keeps you accountable through daily briefs and weekly reviews.",
   "author": "utn100",
-  "authorUrl": "https://github.com/utn100/meridian-obsidian-plugin",
+  "authorUrl": "https://github.com/utn100/obsidian-syllabus-plugin",
   "isDesktopOnly": false
 }
