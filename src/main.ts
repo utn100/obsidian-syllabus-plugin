@@ -1,6 +1,6 @@
 // Syllabus — main plugin entrypoint
 
-import { Notice, Plugin, TFile, WorkspaceLeaf } from "obsidian";
+import { Menu, Notice, Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, type MeridianSettings } from "./settings";
 import { MeridianSettingTab } from "./settings-tab";
 import { makeLLMClient, type LLMClient } from "./llm";
@@ -29,6 +29,34 @@ export default class MeridianPlugin extends Plugin {
     // Register views
     this.registerView(BRIEF_VIEW_TYPE, (leaf) => new BriefView(leaf, this));
     this.registerView(REVIEW_VIEW_TYPE, (leaf) => new ReviewView(leaf, this));
+
+    // Ribbon icon — click to open brief, right-click for menu
+    const ribbonIcon = this.addRibbonIcon("book-open", "Syllabus", () => {
+      this.openBriefSidebar();
+    });
+
+    ribbonIcon.addEventListener("contextmenu", (evt) => {
+      evt.preventDefault();
+      const menu = new Menu();
+      menu.addItem(i => i.setTitle("Open daily brief").setIcon("book-open")
+        .onClick(() => this.openBriefSidebar()));
+      menu.addItem(i => i.setTitle("Open weekly review").setIcon("calendar-check")
+        .onClick(() => this.openReviewSidebar()));
+      menu.addSeparator();
+      menu.addItem(i => i.setTitle("Capture insight").setIcon("pencil")
+        .onClick(() => new CaptureModal(this.app, this, "").open()));
+      menu.addItem(i => i.setTitle("Refine plan from feedback").setIcon("git-branch")
+        .onClick(async () => {
+          try { await runRefinePlan(this.app, this); }
+          catch (e) { new Notice((e as Error).message, 5000); }
+        }));
+      menu.addItem(i => i.setTitle("Sync notes").setIcon("refresh-cw")
+        .onClick(() => this.reindexAllNotes()));
+      menu.addSeparator();
+      menu.addItem(i => i.setTitle("Set up learning plan").setIcon("settings")
+        .onClick(() => new OnboardingModal(this.app, this).open()));
+      menu.showAtMouseEvent(evt);
+    });
 
     // Status bar
     this.statusBar = new StatusBar(this.addStatusBarItem());
