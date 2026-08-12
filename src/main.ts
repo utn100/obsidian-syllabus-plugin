@@ -156,6 +156,21 @@ export default class MeridianPlugin extends Plugin {
       },
     });
 
+    // Register syllabus-refine code block — renders a Refine button inside plan-feedback.md
+    this.registerMarkdownCodeBlockProcessor("syllabus-refine", (source, el) => {
+      el.empty();
+      const wrapper = el.createDiv("syllabus-refine-block");
+      wrapper.createEl("p", {
+        text: "Ready to apply your feedback to the learning plan?",
+        cls: "syllabus-hint",
+      });
+      const btn = wrapper.createEl("button", {
+        text: "⚡ Refine plan from feedback",
+        cls: "mod-cta",
+      });
+      btn.addEventListener("click", () => new RefinePlanModal(this.app, this).open());
+    });
+
     // Watch inbox folder for new files
     this.registerEvent(
       this.app.vault.on("create", (file) => {

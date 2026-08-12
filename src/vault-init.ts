@@ -55,6 +55,9 @@ const PLAN_FEEDBACK_STUB = `# Plan Feedback
 Add feedback below. Each entry is read by the Refine plan command.
 Keep all previous entries — append new ones with a date heading.
 
+\`\`\`syllabus-refine
+\`\`\`
+
 ---
 
 ## ${new Date().toISOString().slice(0, 10)} — Initial feedback

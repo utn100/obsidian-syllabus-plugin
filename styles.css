@@ -269,3 +269,21 @@
   margin-bottom: 6px;
 }
 
+/* Inline refine button in plan-feedback.md */
+.syllabus-refine-block {
+  padding: 12px 16px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  border-left: 3px solid var(--interactive-accent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.syllabus-refine-block p {
+  margin: 0;
+  flex: 1;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
