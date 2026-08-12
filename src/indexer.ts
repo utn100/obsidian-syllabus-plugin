@@ -42,7 +42,11 @@ export class Indexer {
         console.error(`[Syllabus] failed to index ${file.path}:`, e);
       }
     }
-    await this.index.save();
+    try {
+      await this.index.save();
+    } catch (e) {
+      console.error(`[Syllabus] failed to save index:`, e);
+    }
   }
 
   // Incrementally index a single file — called on note save/create

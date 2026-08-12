@@ -41,14 +41,16 @@ export class OnboardingModal extends Modal {
 
   constructor(app: App, private plugin: MeridianPlugin) {
     super(app);
+    // Reload saved values from previous session
+    const s = plugin.settings;
     this.params = {
-      goals: "",
-      hoursPerWeek: 10,
+      goals: s.savedGoals || "",
+      hoursPerWeek: s.savedHoursPerWeek || 10,
       startDate: new Date().toISOString().slice(0, 10),
-      endDate: addMonths(new Date(), 6).toISOString().slice(0, 10),
+      endDate: addMonths(new Date(), s.savedDurationMonths || 6).toISOString().slice(0, 10),
       userRole: plugin.userRole,
-      context: "",
-      languageGoal: "",
+      context: s.savedContext || "",
+      languageGoal: s.savedLanguageGoal || "",
     };
   }
 
@@ -112,6 +114,7 @@ export class OnboardingModal extends Modal {
       "e.g. Refresh my ML knowledge, learn RL, understand RLHF for AI product work";
     goalsTextarea.addEventListener("input", () => {
       this.params.goals = goalsTextarea.value;
+      this.saveInputs();
     });
 
     // ── Context ──────────────────────────────────────────────────────────
@@ -126,6 +129,7 @@ export class OnboardingModal extends Modal {
       "e.g. PM at a B2B SaaS company. Write PRDs for AI features. Work with DS partners weekly.";
     contextTextarea.addEventListener("input", () => {
       this.params.context = contextTextarea.value;
+      this.saveInputs();
     });
 
     // ── Schedule ─────────────────────────────────────────────────────────
@@ -250,6 +254,14 @@ export class OnboardingModal extends Modal {
         this.showProgress(`Error: ${msg}`);
       }
     });
+  }
+
+  private saveInputs(): void {
+    this.plugin.settings.savedGoals = this.params.goals;
+    this.plugin.settings.savedContext = this.params.context;
+    this.plugin.settings.savedLanguageGoal = this.params.languageGoal ?? "";
+    this.plugin.settings.savedHoursPerWeek = this.params.hoursPerWeek;
+    this.plugin.saveSettings(); // fire-and-forget
   }
 
   private applyTemplate(id: string): void {

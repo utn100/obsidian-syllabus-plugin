@@ -15,23 +15,29 @@ export interface MeridianSettings {
 
   // Profile
   userRole: string;
-  customRole: string;  // used when userRole === "Other"
-  briefTime: string; // "HH:MM"
+  customRole: string;
+  briefTime: string;
 
   // Notifications
   briefOnOpen: boolean;
   connectionToasts: boolean;
-  streakAlertTime: string; // "HH:MM"
-  weeklyReviewDay: number; // 0=Sun … 6=Sat
-  weeklyReviewTime: string; // "HH:MM"
+  streakAlertTime: string;
+  weeklyReviewDay: number;
+  weeklyReviewTime: string;
 
   // Embeddings
   embeddingBackend: "openai" | "local";
 
+  // Persisted onboarding inputs — reloaded when wizard reopens
+  savedGoals: string;
+  savedContext: string;
+  savedLanguageGoal: string;
+  savedHoursPerWeek: number;
+  savedDurationMonths: number;
+
   // Internal
-  setupComplete: boolean;
-  lastBriefDate: string; // "YYYY-MM-DD" or ""
-  lastWeeklyReviewDate: string; // "YYYY-WNN" or ""
+  lastBriefDate: string;
+  lastWeeklyReviewDate: string;
 }
 
 export const DEFAULT_SETTINGS: MeridianSettings = {
@@ -50,12 +56,17 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   briefOnOpen: true,
   connectionToasts: true,
   streakAlertTime: "21:00",
-  weeklyReviewDay: 0, // Sunday
+  weeklyReviewDay: 0,
   weeklyReviewTime: "20:00",
 
   embeddingBackend: "openai",
 
-  setupComplete: false,
+  savedGoals: "",
+  savedContext: "",
+  savedLanguageGoal: "",
+  savedHoursPerWeek: 10,
+  savedDurationMonths: 6,
+
   lastBriefDate: "",
   lastWeeklyReviewDate: "",
 };
