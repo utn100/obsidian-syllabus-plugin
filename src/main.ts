@@ -9,19 +9,26 @@ import { initVaultFolders } from "./vault-init";
 import { Indexer } from "./indexer";
 import { OnboardingModal } from "./onboarding";
 import { BriefView, BRIEF_VIEW_TYPE } from "./brief-view";
+import { ReviewView, REVIEW_VIEW_TYPE, MeridianScheduler } from "./review";
 import { calcCapacity, type Memory } from "./memory";
+import { scheduleBridge, cancelBridge } from "./bridge";
+import { CaptureModal } from "./capture-modal";
+import { processInboxFile } from "./inbox";
+import { runRefinePlan } from "./refine";
 
 export default class MeridianPlugin extends Plugin {
   settings: MeridianSettings;
   llmClient: LLMClient;
   indexer: Indexer;
   private statusBar: StatusBar;
+  private scheduler: MeridianScheduler;
 
   async onload(): Promise<void> {
     await this.loadSettings();
 
-    // Register brief sidebar view
+    // Register views
     this.registerView(BRIEF_VIEW_TYPE, (leaf) => new BriefView(leaf, this));
+    this.registerView(REVIEW_VIEW_TYPE, (leaf) => new ReviewView(leaf, this));
 
     // Status bar
     this.statusBar = new StatusBar(this.addStatusBarItem());
@@ -75,6 +82,77 @@ export default class MeridianPlugin extends Plugin {
       callback: () => this.openBriefSidebar(),
     });
 
+    this.addCommand({
+      id: "open-review",
+      name: "Open weekly review",
+      callback: () => this.openReviewSidebar(),
+    });
+
+    this.addCommand({
+      id: "capture",
+      name: "Capture insight",
+      callback: () => new CaptureModal(this.app, this, "").open(),
+    });
+
+    this.addCommand({
+      id: "refine-plan",
+      name: "Refine plan from feedback",
+      callback: async () => {
+        new Notice("Refining plan...");
+        try {
+          await runRefinePlan(this.app, this);
+        } catch (e) {
+          new Notice(`Refine failed: ${(e as Error).message}`, 6000);
+        }
+      },
+    });
+
+    this.addCommand({
+      id: "sync",
+      name: "Sync vault notes",
+      callback: async () => {
+        new Notice("Syncing and indexing concept notes...");
+        try {
+          await this.reindexAllNotes();
+          new Notice("Sync complete");
+        } catch (e) {
+          new Notice(`Sync failed: ${(e as Error).message}`);
+        }
+      },
+    });
+
+    // Watch inbox folder for new files
+    this.registerEvent(
+      this.app.vault.on("create", (file) => {
+        if (!(file instanceof TFile)) return;
+        const inboxPath = `${this.settings.meridianFolder}/inbox/`;
+        if (!file.path.startsWith(inboxPath)) return;
+        if (file.path.includes("/processed/")) return;
+        if (!file.path.endsWith(".md")) return;
+        // Small delay to ensure file is fully written
+        setTimeout(() => processInboxFile(this.app, this, file as TFile), 500);
+      })
+    );
+
+    // Start scheduler (weekly review, streak alerts)
+    this.scheduler = new MeridianScheduler(this);
+    this.scheduler.start();
+    this.registerEvent(
+      this.app.vault.on("modify", (file) => {
+        if (!(file instanceof TFile)) return;
+        if (!file.path.startsWith(this.settings.workNotesFolder + "/")) return;
+        if (!file.path.endsWith(".md")) return;
+        scheduleBridge(this.app, this, file.path);
+      })
+    );
+
+    // Cancel bridge timer if file is deleted
+    this.registerEvent(
+      this.app.vault.on("delete", (file) => {
+        cancelBridge(file.path);
+      })
+    );
+
     // Init vault folders on first enable (or if folder missing)
     this.app.workspace.onLayoutReady(async () => {
       if (!this.settings.setupComplete) {
@@ -107,7 +185,7 @@ export default class MeridianPlugin extends Plugin {
   }
 
   onunload(): void {
-    // Clean up if needed in later phases
+    this.scheduler?.stop();
   }
 
   async loadSettings(): Promise<void> {
@@ -129,6 +207,19 @@ export default class MeridianPlugin extends Plugin {
     const leaf = this.app.workspace.getRightLeaf(false);
     if (leaf) {
       leaf.setViewState({ type: BRIEF_VIEW_TYPE, active: true });
+      this.app.workspace.revealLeaf(leaf);
+    }
+  }
+
+  openReviewSidebar(): void {
+    const existing = this.app.workspace.getLeavesOfType(REVIEW_VIEW_TYPE);
+    if (existing.length > 0) {
+      this.app.workspace.revealLeaf(existing[0]);
+      return;
+    }
+    const leaf = this.app.workspace.getRightLeaf(false);
+    if (leaf) {
+      leaf.setViewState({ type: REVIEW_VIEW_TYPE, active: true });
       this.app.workspace.revealLeaf(leaf);
     }
   }
@@ -178,6 +269,42 @@ export default class MeridianPlugin extends Plugin {
   private getTopStreak(memory: Memory): number {
     const streaks = Object.values(memory.streaks);
     return streaks.length > 0 ? Math.max(...streaks.map(s => s.current)) : 0;
+  }
+
+  // Append or replace "So what" section in a concept note
+  async appendSoWhat(file: TFile, text: string): Promise<void> {
+    const content = await this.app.vault.read(file);
+    const soWhatRe = new RegExp(
+      `(## So what for ${this.userRole}|## So what)\\s*\\n[^#]*`,
+      "i"
+    );
+    const today = new Date().toISOString().slice(0, 10);
+    const newSection = `## So what for ${this.userRole}\n${text}\n*(captured ${today})*\n\n`;
+
+    let updated: string;
+    if (soWhatRe.test(content)) {
+      updated = content.replace(soWhatRe, newSection);
+    } else {
+      updated = content.trimEnd() + "\n\n" + newSection;
+    }
+
+    await this.app.vault.modify(file, updated);
+
+    // Update memory
+    const stem = file.basename;
+    const memory = await this.loadMemory();
+    if (memory && memory.topics[stem]) {
+      memory.topics[stem].so_what_filled = true;
+      memory.note_activity.so_what_sections_filled += 1;
+      memory.last_updated = today;
+      await this.saveMemory(memory);
+    }
+
+    // Update status bar
+    const updatedMemory = await this.loadMemory();
+    if (updatedMemory) {
+      this.statusBar.update(calcCapacity(updatedMemory), this.getTopStreak(updatedMemory));
+    }
   }
 
   // Returns the effective user role
