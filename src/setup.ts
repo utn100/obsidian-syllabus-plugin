@@ -77,8 +77,17 @@ export async function runSetup(
     signal
   );
   signal?.throwIfAborted();
-  // Strip code fences but preserve leading --- (YAML frontmatter)
   const planText = stripCodeFence(planResponse.text).replace(/^-{3,}\s*\n(?=---)/, "");
+
+  // Validate plan format — must contain at least one week header (M6)
+  const hasWeeks = /^### Week \d+/m.test(planText);
+  if (!hasWeeks) {
+    throw new Error(
+      "Generated plan is missing week headers (### Week N ...). " +
+      "Try again — this can happen with very short goals. " +
+      "Add more detail to your goals and background."
+    );
+  }
 
   // Step 3: write plan to vault
   onProgress("Writing plan to vault...");

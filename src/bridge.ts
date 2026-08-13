@@ -204,8 +204,12 @@ function buildConnectionBlock(
   soWhatFilled: boolean
 ): string {
   const today = new Date().toISOString().slice(0, 10);
+  // Strip any executable code blocks from LLM output (S3 — prevent dataview/templater injection)
+  const safeConnection = connection
+    .replace(/```(?:dataview|templater|js|javascript)[^\n]*\n[\s\S]*?```/gi, "")
+    .trim();
   const quality = soWhatFilled ? "" : "\n> *Fill [[" + conceptStem + "]] → \"So what for [role]\" for a specific connection next time.*";
-  return `---\n*Syllabus (${today})*: You studied [[${conceptStem}]].\n${connection}${quality}`;
+  return `---\n*Syllabus (${today})*: You studied [[${conceptStem}]].\n${safeConnection}${quality}`;
 }
 
 // ── Toast ──────────────────────────────────────────────────────────────────

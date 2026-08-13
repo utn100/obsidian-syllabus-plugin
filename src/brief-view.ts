@@ -38,6 +38,14 @@ export class BriefView extends ItemView {
       return;
     }
 
+    // Check API key is configured
+    const hasKey = this.plugin.settings.apiKey || this.plugin.settings.ollamaUrl;
+    if (!hasKey) {
+      const errEl = container.createEl("p", { cls: "syllabus-loading" });
+      errEl.setText("⚠️ No API key configured — go to Settings → Syllabus to add your key");
+      return;
+    }
+
     // Show loading state
     const loading = container.createEl("p", { text: "⏳ Loading brief...", cls: "syllabus-loading" });
     const debugEl = container.createEl("p", { cls: "syllabus-hint" });

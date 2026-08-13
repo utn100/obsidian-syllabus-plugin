@@ -4,6 +4,35 @@
 
 Syllabus generates a personalised learning plan, drafts concept notes, and surfaces relevant knowledge at the moment you're writing. Daily briefs, work-learning connections, and weekly reviews come to you as push notifications — no files to remember to open.
 
+> **Note**: Syllabus makes LLM API calls to generate plans, draft notes, and create connections. Your vault files stay local. See Privacy section below.
+
+---
+
+## Screenshots
+
+*Daily brief sidebar — shows today's focus task, resources, and related notes:*
+
+![Daily brief sidebar](docs/screenshot-brief.png)
+
+*Work-learning bridge — connection toast fires when you save a work note:*
+
+![Connection toast](docs/screenshot-toast.png)
+
+---
+
+## Installation
+
+### From Obsidian Community Plugins (recommended)
+1. Open Obsidian → Settings → Community plugins
+2. Turn off Restricted mode
+3. Browse community plugins → search "Syllabus"
+4. Install → Enable
+
+### Manual installation
+1. Download `main.js`, `manifest.json`, `styles.css` from the [latest release](https://github.com/utn100/obsidian-syllabus-plugin/releases)
+2. Copy to your vault: `.obsidian/plugins/syllabus/`
+3. Reload Obsidian → Settings → Community plugins → Enable Syllabus
+
 ---
 
 ## How it works
@@ -83,10 +112,19 @@ syllabus/
 
 ## Privacy
 
-- Vault content stays local except for LLM API calls (plan generation, note drafting, connections)
-- API keys stored in Obsidian's local plugin data
-- No analytics, no telemetry, no external servers
-- Works fully offline except for LLM calls
+**What is sent to your LLM provider:**
+- Your learning goals and background context (during setup)
+- Plan feedback text (during refine)
+- Brief excerpts of your work notes (up to 1000 chars, during bridge)
+- Content of files dropped in the inbox folder
+
+**What stays local:**
+- All vault files (notes, plans, concept notes)
+- The semantic search index (`embeddings.json`)
+- Your memory state (`memory.json`)
+- API keys (stored in Obsidian's local plugin data only)
+
+No analytics, no telemetry, no external servers beyond your chosen LLM provider. Consider marking sensitive work notes with `private: true` in frontmatter — bridge processing for those notes is not yet suppressed in v1.0 (planned for v1.1).
 
 ---
 
