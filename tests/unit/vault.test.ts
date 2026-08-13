@@ -75,7 +75,7 @@ describe("memory helpers", () => {
     expect(topics).toContain("mdp-framework");
   });
 
-  it("extractTopicsFromPlan excludes Chinese/language topics", () => {
+  it("extractTopicsFromPlan includes all topics including language", () => {
     const { extractTopicsFromPlan } = require("../../src/memory");
     const plan = `
 ## Topics by theme
@@ -86,7 +86,8 @@ describe("memory helpers", () => {
 `;
     const topics = extractTopicsFromPlan(plan);
     expect(topics).toContain("python-basics");
-    expect(topics).not.toContain("chinese-hsk-3-vocabulary");
+    // Language topics are now included (no hard-coded filter)
+    expect(topics).toContain("chinese-hsk-3-vocabulary");
   });
 
   it("stripCodeFence removes markdown fences", () => {

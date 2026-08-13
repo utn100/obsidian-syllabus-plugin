@@ -157,7 +157,7 @@ function findFocusTask(planText: string, today: string): {
       const r = line.replace(/📚/g, "").replace(/\*\*[^*]+\*\*:?\s*/g, "").trim();
       if (r) resources = filterResourcesFromUnchecked(r, uncheckedTasks);
     }
-    if (/^- \[ \]/.test(line) && !line.includes("Chinese") && !line.includes("Language")) {
+    if (/^- \[ \]/.test(line)) {
       uncheckedTasks.push(line.replace(/^- \[ \] /, "").trim());
     }
   }

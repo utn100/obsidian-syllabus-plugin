@@ -215,6 +215,11 @@ export class MeridianSettingTab extends PluginSettingTab {
         dd
           .addOption("0", "Sunday")
           .addOption("1", "Monday")
+          .addOption("2", "Tuesday")
+          .addOption("3", "Wednesday")
+          .addOption("4", "Thursday")
+          .addOption("5", "Friday")
+          .addOption("6", "Saturday")
           .setValue(String(this.plugin.settings.weeklyReviewDay))
           .onChange(async (v) => {
             this.plugin.settings.weeklyReviewDay = parseInt(v);
@@ -237,9 +242,7 @@ export class MeridianSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Embedding backend")
-      .setDesc(
-        "OpenAI: uses text-embedding-3-small API (fast, requires API key). Local: not supported in this version."
-      )
+      .setDesc("OpenAI: uses text-embedding-3-small API. Local: not supported in this version.")
       .addDropdown((dd) =>
         dd
           .addOption("openai", "OpenAI API (recommended)")
@@ -250,6 +253,23 @@ export class MeridianSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           })
       );
+
+    new Setting(containerEl)
+      .setName("OpenAI embedding key")
+      .setDesc(
+        "API key for OpenAI embeddings. If blank, uses the main API key above. " +
+        "Required if your LLM provider is Anthropic or Ollama."
+      )
+      .addText((t) => {
+        t.inputEl.type = "password";
+        t
+          .setPlaceholder("sk-... (leave blank to use main key)")
+          .setValue(this.plugin.settings.openaiEmbeddingKey)
+          .onChange(async (v) => {
+            this.plugin.settings.openaiEmbeddingKey = v;
+            await this.plugin.saveSettings();
+          });
+      });
 
     new Setting(containerEl)
       .setName("Re-index all notes")

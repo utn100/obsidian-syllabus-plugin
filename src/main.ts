@@ -11,15 +11,17 @@ import { OnboardingModal } from "./onboarding";
 import { BriefView, BRIEF_VIEW_TYPE } from "./brief-view";
 import { ReviewView, REVIEW_VIEW_TYPE, MeridianScheduler } from "./review";
 import { calcCapacity, type Memory } from "./memory";
-import { scheduleBridge, cancelBridge } from "./bridge";
+import { scheduleBridge, cancelBridge, clearAllBridgeTimers } from "./bridge";
 import { CaptureModal } from "./capture-modal";
 import { processInboxFile } from "./inbox";
-import { RefinePlanModal } from "./refine";
+import { dismissAllToasts } from "./toast";
 
 export default class MeridianPlugin extends Plugin {
   settings: MeridianSettings;
   llmClient: LLMClient;
   indexer: Indexer;
+  bridgeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  bridgeSuppressed = new Set<string>();
   private statusBar: StatusBar;
   private scheduler: MeridianScheduler;
 
@@ -89,8 +91,7 @@ export default class MeridianPlugin extends Plugin {
       id: "open-settings",
       name: "Open settings",
       callback: () => {
-        // @ts-ignore — open settings to this plugin
-        this.app.setting.openTabById(this.manifest.id);
+        new Notice("Go to Settings → Community Plugins → Syllabus to configure");
       },
     });
 
@@ -199,7 +200,7 @@ export default class MeridianPlugin extends Plugin {
     // Cancel bridge timer if file is deleted
     this.registerEvent(
       this.app.vault.on("delete", (file) => {
-        cancelBridge(file.path);
+        cancelBridge(this, file.path);
       })
     );
 
@@ -239,6 +240,8 @@ export default class MeridianPlugin extends Plugin {
 
   onunload(): void {
     this.scheduler?.stop();
+    clearAllBridgeTimers(this);
+    dismissAllToasts();
   }
 
   async loadSettings(): Promise<void> {
@@ -257,10 +260,10 @@ export default class MeridianPlugin extends Plugin {
       this.app.workspace.revealLeaf(existing[0]);
       return;
     }
-    this.app.workspace.getLeaf("split").setViewState({
-      type: BRIEF_VIEW_TYPE,
-      active: true,
-    });
+    const leaf = this.app.workspace.getRightLeaf(false) ??
+                 this.app.workspace.getLeaf("tab");
+    leaf.setViewState({ type: BRIEF_VIEW_TYPE, active: true });
+    this.app.workspace.revealLeaf(leaf);
   }
 
   openReviewSidebar(): void {
@@ -269,10 +272,10 @@ export default class MeridianPlugin extends Plugin {
       this.app.workspace.revealLeaf(existing[0]);
       return;
     }
-    this.app.workspace.getLeaf("split").setViewState({
-      type: REVIEW_VIEW_TYPE,
-      active: true,
-    });
+    const leaf = this.app.workspace.getRightLeaf(false) ??
+                 this.app.workspace.getLeaf("tab");
+    leaf.setViewState({ type: REVIEW_VIEW_TYPE, active: true });
+    this.app.workspace.revealLeaf(leaf);
   }
 
   // Read memory.json from vault
@@ -341,10 +344,14 @@ export default class MeridianPlugin extends Plugin {
 
     await this.app.vault.modify(file, updated);
 
-    // Update memory
+    // Update memory — create entry if not tracked yet (B13)
     const stem = file.basename;
     const memory = await this.loadMemory();
-    if (memory && memory.topics[stem]) {
+    if (memory) {
+      if (!memory.topics[stem]) {
+        const { emptyTopic } = await import("./memory");
+        memory.topics[stem] = emptyTopic(stem);
+      }
       memory.topics[stem].so_what_filled = true;
       memory.note_activity.so_what_sections_filled += 1;
       memory.last_updated = today;

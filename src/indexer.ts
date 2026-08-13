@@ -88,14 +88,14 @@ export class Indexer {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function makeEmbeddingClient(settings: MeridianSettings): EmbeddingClient {
+  // Use dedicated openaiEmbeddingKey if set, otherwise fall back to main apiKey
+  const embeddingKey = settings.openaiEmbeddingKey || settings.apiKey;
+
   if (settings.embeddingBackend === "local") {
-    // Local not yet supported — fall back to OpenAI if key available
-    if (settings.apiKey && settings.provider !== "ollama") {
-      return new OpenAIEmbeddingClient(settings.apiKey);
-    }
-    return new LocalEmbeddingClient(); // will throw with clear message on use
+    if (embeddingKey) return new OpenAIEmbeddingClient(embeddingKey);
+    return new LocalEmbeddingClient();
   }
-  return new OpenAIEmbeddingClient(settings.apiKey);
+  return new OpenAIEmbeddingClient(embeddingKey);
 }
 
 function extractTextForEmbedding(content: string, maxChars: number): string {

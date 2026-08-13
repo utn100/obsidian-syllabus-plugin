@@ -36,7 +36,20 @@ export class ReviewView extends ItemView {
     try {
       const planText = await readPlanText(this.app, this.plugin);
       const ctx = computeReviewContext(memory, planText);
-      const reviewText = await generateReviewText(this.plugin, ctx);
+      const weekLabel = getWeekLabel();
+
+      // Use cached review text if available for this week (U2)
+      let reviewText = "";
+      if (this.plugin.settings.cachedReviewWeek === weekLabel &&
+          this.plugin.settings.cachedReviewText) {
+        reviewText = this.plugin.settings.cachedReviewText;
+      } else {
+        reviewText = await generateReviewText(this.plugin, ctx);
+        this.plugin.settings.cachedReviewText = reviewText;
+        this.plugin.settings.cachedReviewWeek = weekLabel;
+        await this.plugin.saveSettings();
+      }
+
       loading.remove();
       this.renderReview(container, ctx, reviewText);
       await writeReviewFile(this.app, this.plugin, reviewText);
@@ -110,6 +123,17 @@ export class ReviewView extends ItemView {
     refreshBtn.addEventListener("click", async () => {
       refreshBtn.setText("Refreshing...");
       refreshBtn.disabled = true;
+      await this.refresh();
+    });
+
+    const regenBtn = container.createEl("button", { text: "Regenerate summary" });
+    regenBtn.addEventListener("click", async () => {
+      // Bust cache so next refresh generates fresh LLM text
+      this.plugin.settings.cachedReviewWeek = "";
+      this.plugin.settings.cachedReviewText = "";
+      await this.plugin.saveSettings();
+      regenBtn.setText("Regenerating...");
+      regenBtn.disabled = true;
       await this.refresh();
     });
   }
@@ -326,9 +350,14 @@ export class MeridianScheduler {
       }
     }
 
-    // Streak at risk — configured time, if language not logged today
+    // Streak at risk — once per day at configured time
     if (hhmm === settings.streakAlertTime) {
-      await this.checkStreakAlert();
+      const today = new Date().toISOString().slice(0, 10);
+      if (settings.lastStreakAlertDate !== today) {
+        settings.lastStreakAlertDate = today;
+        await this.plugin.saveSettings();
+        await this.checkStreakAlert();
+      }
     }
   }
 

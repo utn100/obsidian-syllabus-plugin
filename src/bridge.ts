@@ -18,10 +18,7 @@ export interface BridgeResult {
   connection: string;
 }
 
-// ── Debounce registry ──────────────────────────────────────────────────────
-// One timer per file path — resets on each save, fires 30s after last save
-
-const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+// ── Debounce registry — stored on plugin instance to avoid cross-reload leaks ─
 
 export function scheduleBridge(
   app: App,
@@ -29,26 +26,34 @@ export function scheduleBridge(
   filePath: string,
   debounceMs = 30000
 ): void {
-  const existing = debounceTimers.get(filePath);
+  // Skip if this file was just written by the bridge itself (P1 self-trigger fix)
+  if (plugin.bridgeSuppressed.has(filePath)) return;
+
+  const existing = plugin.bridgeTimers.get(filePath);
   if (existing) clearTimeout(existing);
 
   const timer = setTimeout(async () => {
-    debounceTimers.delete(filePath);
+    plugin.bridgeTimers.delete(filePath);
     const file = app.vault.getAbstractFileByPath(filePath);
     if (file instanceof TFile) {
       await runBridge(app, plugin, file);
     }
   }, debounceMs);
 
-  debounceTimers.set(filePath, timer);
+  plugin.bridgeTimers.set(filePath, timer);
 }
 
-export function cancelBridge(filePath: string): void {
-  const existing = debounceTimers.get(filePath);
+export function cancelBridge(plugin: MeridianPlugin, filePath: string): void {
+  const existing = plugin.bridgeTimers.get(filePath);
   if (existing) {
     clearTimeout(existing);
-    debounceTimers.delete(filePath);
+    plugin.bridgeTimers.delete(filePath);
   }
+}
+
+export function clearAllBridgeTimers(plugin: MeridianPlugin): void {
+  for (const timer of plugin.bridgeTimers.values()) clearTimeout(timer);
+  plugin.bridgeTimers.clear();
 }
 
 // ── Main bridge logic ──────────────────────────────────────────────────────
@@ -113,6 +118,10 @@ export async function runBridge(
   }
 
   const quality = soWhatFilled ? "high" : "generic";
+
+  // Suppress self-trigger: mark file as bridge-written before modifying
+  plugin.bridgeSuppressed.add(file.path);
+  setTimeout(() => plugin.bridgeSuppressed.delete(file.path), 60000);
 
   // Append connection to work note
   const connectionBlock = buildConnectionBlock(conceptStem, connection, soWhatFilled);

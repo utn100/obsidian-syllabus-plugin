@@ -1,11 +1,18 @@
 // Toast notifications — lightweight, auto-dismissing notices with action buttons
-// Different from Obsidian's Notice: supports multiple action buttons and longer display
 
 import { App } from "obsidian";
 
 export interface ToastAction {
   label: string;
   onClick: () => void;
+}
+
+// Global registry for cleanup on plugin unload
+const activeToasts: Set<Toast> = new Set();
+
+export function dismissAllToasts(): void {
+  for (const t of activeToasts) t.dismiss();
+  activeToasts.clear();
 }
 
 export class Toast {
@@ -21,15 +28,15 @@ export class Toast {
     this.el = document.createElement("div");
     this.el.addClass("syllabus-toast");
     this.render();
-    document.body.appendChild(this.el);
-
-    // Auto-dismiss
+    // Use activeDocument for multi-window support (Obsidian guideline)
+    const body = (app as any).activeDocument?.body ?? document.body;
+    body.appendChild(this.el);
+    activeToasts.add(this);
     this.timer = setTimeout(() => this.dismiss(), this.durationMs);
   }
 
   private render(): void {
     this.el.empty();
-
     const content = this.el.createDiv("syllabus-toast-content");
     content.createEl("span", { text: "⚡ ", cls: "syllabus-toast-icon" });
     content.createEl("span", { text: this.message, cls: "syllabus-toast-message" });
@@ -48,7 +55,6 @@ export class Toast {
       }
     }
 
-    // Dismiss on click anywhere on toast
     this.el.addEventListener("click", (e) => {
       if ((e.target as HTMLElement).tagName !== "BUTTON") this.dismiss();
     });
@@ -57,7 +63,10 @@ export class Toast {
   dismiss(): void {
     if (this.timer) clearTimeout(this.timer);
     this.el.addClass("syllabus-toast-hiding");
-    setTimeout(() => this.el.remove(), 300);
+    setTimeout(() => {
+      this.el.remove();
+      activeToasts.delete(this);
+    }, 300);
   }
 
   static show(

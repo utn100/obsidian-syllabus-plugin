@@ -141,7 +141,7 @@ export class BriefView extends ItemView {
     // Session checkboxes — derive label from focus task topic or use generic
     const checkEl = container.createDiv("syllabus-checks-section");
     checkEl.createEl("hr");
-    checkEl.createEl("p", { text: "Mark yesterday complete:", cls: "syllabus-section-label" });
+    checkEl.createEl("p", { text: "Mark today complete:", cls: "syllabus-section-label" });
     const studyLabel = ctx.focusReason
       ? `Study session done (${ctx.focusReason.split(":")[0].trim()})`
       : "Study session done";

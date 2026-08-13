@@ -9,6 +9,10 @@ export interface MeridianSettings {
   model: string;
   ollamaUrl: string;
 
+  // Embeddings (separate key needed when LLM is Anthropic/Ollama)
+  embeddingBackend: "openai" | "local";
+  openaiEmbeddingKey: string;  // used for embeddings when provider != openai
+
   // Vault
   meridianFolder: string;
   workNotesFolder: string;
@@ -24,11 +28,9 @@ export interface MeridianSettings {
   streakAlertTime: string;
   weeklyReviewDay: number;
   weeklyReviewTime: string;
+  lastStreakAlertDate: string;  // prevent multiple toasts per day
 
-  // Embeddings
-  embeddingBackend: "openai" | "local";
-
-  // Persisted onboarding inputs — reloaded when wizard reopens
+  // Persisted onboarding inputs
   savedGoals: string;
   savedContext: string;
   savedLanguageGoal: string;
@@ -37,8 +39,11 @@ export interface MeridianSettings {
   savedStartDate: string;
 
   // Internal
+  setupComplete: boolean;
   lastBriefDate: string;
   lastWeeklyReviewDate: string;
+  cachedReviewText: string;     // cache weekly review LLM output
+  cachedReviewWeek: string;     // week label the cache belongs to
 }
 
 export const DEFAULT_SETTINGS: MeridianSettings = {
@@ -46,6 +51,9 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   apiKey: "",
   model: "claude-sonnet-latest",
   ollamaUrl: "http://localhost:11434",
+
+  embeddingBackend: "openai",
+  openaiEmbeddingKey: "",
 
   meridianFolder: "syllabus",
   workNotesFolder: "syllabus/work-notes",
@@ -59,8 +67,7 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   streakAlertTime: "21:00",
   weeklyReviewDay: 0,
   weeklyReviewTime: "20:00",
-
-  embeddingBackend: "openai",
+  lastStreakAlertDate: "",
 
   savedGoals: "",
   savedContext: "",
@@ -69,6 +76,9 @@ export const DEFAULT_SETTINGS: MeridianSettings = {
   savedDurationMonths: 6,
   savedStartDate: "",
 
+  setupComplete: false,
   lastBriefDate: "",
   lastWeeklyReviewDate: "",
+  cachedReviewText: "",
+  cachedReviewWeek: "",
 };

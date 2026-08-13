@@ -115,7 +115,7 @@ export function extractTopicsFromPlan(planText: string): string[] {
   }
 
   // Filter out Chinese/language topics (theme 4.x)
-  return topics.filter((t) => !t.includes("chinese") && !t.includes("hsk"));
+  return topics;
 }
 
 // Strip ```markdown ... ``` code fences LLM sometimes wraps output in

@@ -36,6 +36,11 @@ export class AnthropicClient implements LLMClient {
     maxTokens = 8192,
     signal?: AbortSignal
   ): Promise<LLMResponse> {
+    // Add 120s timeout unless caller already provides a signal
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120000);
+    const combinedSignal = signal ?? controller.signal;
+
     const body: Record<string, unknown> = {
       model: this.model,
       max_tokens: maxTokens,
@@ -43,28 +48,32 @@ export class AnthropicClient implements LLMClient {
     };
     if (systemPrompt) body.system = systemPrompt;
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": this.apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(body),
-      signal,
-    });
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": this.apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: combinedSignal,
+      });
 
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Anthropic API error ${res.status}: ${err}`);
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`Anthropic API error ${res.status}: ${err}`);
+      }
+
+      const data = await res.json();
+      return {
+        text: data.content[0].text,
+        inputTokens: data.usage.input_tokens,
+        outputTokens: data.usage.output_tokens,
+      };
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = await res.json();
-    return {
-      text: data.content[0].text,
-      inputTokens: data.usage.input_tokens,
-      outputTokens: data.usage.output_tokens,
-    };
   }
 }
 
