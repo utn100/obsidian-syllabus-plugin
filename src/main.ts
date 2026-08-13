@@ -344,7 +344,7 @@ export default class MeridianPlugin extends Plugin {
 
     await this.app.vault.modify(file, updated);
 
-    // Update memory — create entry if not tracked yet (B13)
+    // Update memory — single load, reuse for status bar (P3)
     const stem = file.basename;
     const memory = await this.loadMemory();
     if (memory) {
@@ -356,12 +356,7 @@ export default class MeridianPlugin extends Plugin {
       memory.note_activity.so_what_sections_filled += 1;
       memory.last_updated = today;
       await this.saveMemory(memory);
-    }
-
-    // Update status bar
-    const updatedMemory = await this.loadMemory();
-    if (updatedMemory) {
-      this.statusBar.update(calcCapacity(updatedMemory), this.getTopStreak(updatedMemory));
+      this.statusBar.update(calcCapacity(memory), this.getTopStreak(memory));
     }
   }
 

@@ -45,12 +45,23 @@ export class VectorIndex {
 
   async save(): Promise<void> {
     const arr = Array.from(this.entries.values());
-    const content = JSON.stringify(arr, null, 2);
+    const content = JSON.stringify(arr); // compact — no indentation (P5)
     const file = this.app.vault.getAbstractFileByPath(this.indexPath);
     if (file instanceof TFile) {
       await this.app.vault.modify(file, content);
     } else {
-      await this.app.vault.create(this.indexPath, content);
+      // Ensure parent folder exists before creating (B5)
+      const folder = this.indexPath.split("/").slice(0, -1).join("/");
+      if (folder && !this.app.vault.getAbstractFileByPath(folder)) {
+        try { await this.app.vault.createFolder(folder); } catch { /* already exists */ }
+      }
+      try {
+        await this.app.vault.create(this.indexPath, content);
+      } catch {
+        // File appeared between check and create — modify instead
+        const f = this.app.vault.getAbstractFileByPath(this.indexPath);
+        if (f instanceof TFile) await this.app.vault.modify(f, content);
+      }
     }
   }
 

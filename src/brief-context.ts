@@ -205,12 +205,13 @@ function filterResourcesFromUnchecked(fullResources: string, uncheckedTasks: str
 // ── Drift ───────────────────────────────────────────────────────────────────
 
 function calcDrift(memory: Memory, today: string): number {
-  const sessions = memory.sessions;
-  if (sessions.length === 0) return 0;
-  const last = sessions[sessions.length - 1].date;
+  // Only count sessions where something was actually completed (B6)
+  const completedSessions = memory.sessions.filter(s => s.completed.length > 0);
+  if (completedSessions.length === 0) return 0;
+  const last = completedSessions[completedSessions.length - 1].date;
   const diffMs = new Date(today).getTime() - new Date(last).getTime();
   const diffDays = Math.floor(diffMs / 86400000);
-  return Math.max(0, diffDays - 1); // 1 day gap is normal
+  return Math.max(0, diffDays - 1);
 }
 
 // ── Language progress ────────────────────────────────────────────────────────

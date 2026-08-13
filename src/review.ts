@@ -1,6 +1,6 @@
 // Weekly review sidebar + scheduler
 
-import { App, ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian";
+import { App, ItemView, MarkdownRenderer, Notice, TFile, WorkspaceLeaf } from "obsidian";
 import type MeridianPlugin from "./main";
 import { calcCapacity } from "./memory";
 import { SYSTEM_PROMPT } from "./prompts";
@@ -74,7 +74,7 @@ export class ReviewView extends ItemView {
     // LLM review text
     if (reviewText) {
       const reviewEl = container.createDiv("syllabus-review-text");
-      reviewEl.setText(reviewText);
+      MarkdownRenderer.render(this.app, reviewText, reviewEl, "", this);
     }
 
     // Applied this week
@@ -389,9 +389,10 @@ export class MeridianScheduler {
 
 // ── Helper ─────────────────────────────────────────────────────────────────
 
+// Use the Sunday date as the week key — unambiguous and works at year boundaries (B10)
 function getWeekLabel(): string {
   const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const week = Math.ceil(((now.getTime() - start.getTime()) / 86400000 + start.getDay() + 1) / 7);
-  return `${now.getFullYear()}-W${String(week).padStart(2, "0")}`;
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() - now.getDay());
+  return sunday.toISOString().slice(0, 10); // e.g. "2026-08-09"
 }

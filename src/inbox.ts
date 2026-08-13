@@ -8,14 +8,17 @@ import { stripCodeFence } from "./memory";
 
 const INBOX_PROCESSED = "processed";
 
-// ── Entry point called from vault.on('create') ─────────────────────────────
+// Guard against processing the same file twice (B4)
+const inFlightPaths = new Set<string>();
 
 export async function processInboxFile(
   app: App,
   plugin: MeridianPlugin,
   file: TFile
 ): Promise<void> {
-  // Show processing toast
+  if (inFlightPaths.has(file.path)) return;
+  inFlightPaths.add(file.path);
+
   const processingToast = Toast.show(app, `Processing ${file.name}...`, [], 30000);
 
   try {
@@ -124,6 +127,8 @@ export async function processInboxFile(
     processingToast.dismiss();
     Toast.show(app, `Error processing ${file.name}: ${(e as Error).message}`, [], 8000);
     console.error("[Syllabus] inbox error:", e);
+  } finally {
+    inFlightPaths.delete(file.path);
   }
 }
 

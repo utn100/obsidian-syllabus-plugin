@@ -29,19 +29,51 @@ export class Indexer {
     await this.index.load();
   }
 
-  // Index all concept notes — used on setup and re-index command
+  // Index all concept notes — batched for performance (P2)
   async indexAll(onProgress?: (done: number, total: number) => void): Promise<void> {
     const files = this.getConceptFiles();
+    if (files.length === 0) return;
+
+    const BATCH_SIZE = 50;
     let done = 0;
-    for (const file of files) {
+
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+      const batch = files.slice(i, i + BATCH_SIZE);
+      const texts: string[] = [];
+
+      for (const file of batch) {
+        try {
+          const content = await this.app.vault.read(file);
+          texts.push(extractTextForEmbedding(content, MAX_EMBED_CHARS));
+        } catch {
+          texts.push("");
+        }
+      }
+
       try {
-        await this.indexFile(file);
-        done++;
-        onProgress?.(done, files.length);
+        const vectors = await this.embedder.embedBatch(texts);
+        for (let j = 0; j < batch.length; j++) {
+          if (vectors[j]?.length) {
+            this.index.upsert({
+              path: batch[j].path,
+              stem: batch[j].basename,
+              vector: vectors[j],
+              updatedAt: new Date().toISOString(),
+            });
+          }
+          done++;
+          onProgress?.(done, files.length);
+        }
       } catch (e) {
-        console.error(`[Syllabus] failed to index ${file.path}:`, e);
+        // Fall back to serial on batch failure
+        for (const file of batch) {
+          try { await this.indexFile(file); } catch { /* skip */ }
+          done++;
+          onProgress?.(done, files.length);
+        }
       }
     }
+
     try {
       await this.index.save();
     } catch (e) {
