@@ -68,6 +68,13 @@ export class OnboardingModal extends Modal {
       cls: "syllabus-subtitle",
     });
 
+    // S2: Privacy disclosure
+    const disclosure = contentEl.createDiv("syllabus-disclosure");
+    disclosure.createEl("p", {
+      text: "⚠️ Privacy: Syllabus sends your goals, background context, and brief excerpts of your work notes to your chosen LLM provider (Anthropic/OpenAI/Ollama) to generate plans, notes, and connections. Your vault files stay local. Review your provider's privacy policy before use.",
+      cls: "syllabus-hint",
+    });
+
     // ── Template picker ──────────────────────────────────────────────────
 
     contentEl.createEl("h3", { text: "What are you learning?" });

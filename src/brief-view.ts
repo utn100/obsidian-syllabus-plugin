@@ -51,9 +51,17 @@ export class BriefView extends ItemView {
         this.plugin.indexer
       );
       loading.remove();
+      debugEl.remove();
       this.renderBrief(container, this.context, memory);
     } catch (e) {
-      loading.setText(`Error: ${(e as Error).message}`);
+      const msg = (e as Error).message ?? "";
+      const isAuthError = msg.includes("401") || msg.includes("403") ||
+                          msg.includes("API key") || msg.includes("authentication");
+      if (isAuthError) {
+        loading.setText("⚠️ API key error — go to Settings → Syllabus to check your key");
+      } else {
+        loading.setText(`Error loading brief: ${msg}`);
+      }
     }
   }
 

@@ -271,15 +271,25 @@ export class MeridianSettingTab extends PluginSettingTab {
           });
       });
 
+    // M3: Index status — show note count and last indexed date
+    const indexSize = this.plugin.indexer?.index?.size() ?? 0;
+    const conceptPath = `${this.plugin.settings.meridianFolder}/concepts`;
+    const totalConcepts = this.plugin.app.vault.getMarkdownFiles()
+      .filter(f => f.path.startsWith(conceptPath + "/")).length;
+    const statusDesc = indexSize === 0
+      ? "⚠️ Index is empty — click Re-index to build it"
+      : `${indexSize}/${totalConcepts} concept notes indexed`;
+
     new Setting(containerEl)
       .setName("Re-index all notes")
-      .setDesc("Rebuild the semantic search index from scratch")
+      .setDesc(statusDesc)
       .addButton((btn) =>
         btn.setButtonText("Re-index").onClick(async () => {
           btn.setButtonText("Indexing...").setDisabled(true);
           await this.plugin.reindexAllNotes();
           btn.setButtonText("Re-index").setDisabled(false);
           new Notice("Re-index complete");
+          this.display(); // refresh status count
         })
       );
   }

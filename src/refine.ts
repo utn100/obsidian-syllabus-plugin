@@ -57,7 +57,7 @@ export class RefinePlanModal extends Modal {
 
     contentEl.createEl("hr");
     contentEl.createEl("p", {
-      text: "Once you've added your feedback, click Refine to apply it.",
+      text: "Once you've added your feedback, click Refine. The file is re-read at click time — you can dismiss this modal, edit, then reopen it.",
       cls: "syllabus-hint",
     });
 
