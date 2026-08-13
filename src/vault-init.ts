@@ -1,7 +1,24 @@
 // Vault folder initialisation — creates the Syllabus directory tree on first enable
 
-import { App } from "obsidian";
+import { App, Notice } from "obsidian";
 import type { MeridianSettings } from "./settings";
+
+// Check for recommended community plugins and warn if missing
+export function checkDependencies(app: App): void {
+  const plugins = (app as any).plugins?.plugins ?? {};
+  const missing: string[] = [];
+
+  if (!plugins["dataview"]) {
+    missing.push("Dataview (for dashboard queries)");
+  }
+
+  if (missing.length > 0) {
+    new Notice(
+      `Syllabus recommends these plugins for full functionality:\n${missing.join("\n")}\n\nInstall them from Community Plugins → Browse.`,
+      10000
+    );
+  }
+}
 
 async function ensureFolder(app: App, path: string): Promise<void> {
   try {
@@ -29,7 +46,6 @@ export async function initVaultFolders(
   settings: MeridianSettings
 ): Promise<void> {
   const base = settings.meridianFolder;
-
   const folders = [
     base,
     `${base}/concepts`,

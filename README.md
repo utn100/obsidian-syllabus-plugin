@@ -134,6 +134,14 @@ No analytics, no telemetry, no external servers beyond your chosen LLM provider.
 - An API key for Anthropic, OpenAI, or a running Ollama instance
 - OpenAI API key for embeddings (or switch to local embeddings in settings — coming soon)
 
+### Recommended plugins
+
+| Plugin | Purpose | Required? |
+|---|---|---|
+| [Dataview](https://github.com/blacksmithgu/obsidian-dataview) | Live queries in dashboard.md | Recommended |
+
+Syllabus will notify you at startup if Dataview is not installed. The dashboard file will still be created but queries won't render without it.
+
 ---
 
 ## Compatibility

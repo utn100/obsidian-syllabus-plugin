@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS, type MeridianSettings } from "./settings";
 import { MeridianSettingTab } from "./settings-tab";
 import { makeLLMClient, type LLMClient } from "./llm";
 import { StatusBar } from "./statusbar";
-import { initVaultFolders } from "./vault-init";
+import { initVaultFolders, checkDependencies } from "./vault-init";
 import { Indexer } from "./indexer";
 import { OnboardingModal } from "./onboarding";
 import { BriefView, BRIEF_VIEW_TYPE } from "./brief-view";
@@ -207,6 +207,7 @@ export default class MeridianPlugin extends Plugin {
     // Init vault folders on first enable (or if folder missing)
     this.app.workspace.onLayoutReady(async () => {
       await initVaultFolders(this.app, this.settings);
+      checkDependencies(this.app);
 
       // Load existing index from vault
       await this.indexer.init();
