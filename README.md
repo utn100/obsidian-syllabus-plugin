@@ -10,13 +10,13 @@ Syllabus generates a personalised learning plan, drafts concept notes, and surfa
 
 ## Screenshots
 
-*Daily brief sidebar — shows today's focus task, resources, and related notes:*
+*Generating a personalised learning plan:*
 
-![Daily brief sidebar](docs/screenshot-brief.png)
+![Generating plan](docs/syllabus-generatingPlan.png)
 
-*Work-learning bridge — connection toast fires when you save a work note:*
+*Daily brief sidebar — focus task, resources, and related notes:*
 
-![Connection toast](docs/screenshot-toast.png)
+![Daily brief](docs/syllabus-plan-dailyBrief.png)
 
 ---
 
